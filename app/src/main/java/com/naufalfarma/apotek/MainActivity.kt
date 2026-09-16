@@ -8,12 +8,13 @@ import android.graphics.pdf.PdfDocument
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import android.widget.Toast
 import java.io.File
 import java.io.FileOutputStream
@@ -85,10 +86,8 @@ class MainActivity : Activity() {
                         put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                         put(MediaStore.Downloads.IS_PENDING, 1)
                     }
-                    val uri = contentResolver.insert(
-                        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                        values
-                    ) ?: throw IllegalStateException("Gagal membuat file Download")
+                    val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                        ?: throw IllegalStateException("Gagal membuat file Download")
                     contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
                     values.clear()
                     values.put(MediaStore.Downloads.IS_PENDING, 0)
@@ -113,16 +112,19 @@ class MainActivity : Activity() {
                 val pdfWebView = WebView(this@MainActivity)
                 pdfWebView.settings.javaScriptEnabled = false
                 pdfWebView.setBackgroundColor(Color.WHITE)
+                pdfWebView.alpha = 0f
 
                 val html = """
+                    <!doctype html>
                     <html><head><meta charset='utf-8'>
                     <style>
                     *{box-sizing:border-box}
-                    body{font-family:Arial,sans-serif;color:#111;font-size:9pt;margin:0;padding:0}
+                    html,body{margin:0;padding:0;background:#fff}
+                    body{font-family:Arial,sans-serif;color:#111;font-size:9pt;padding:28px}
                     h1{text-align:center;font-size:17pt;margin:0 0 4px}
                     h2{text-align:center;font-size:11pt;margin:0 0 14px}
                     table{width:100%;border-collapse:collapse}
-                    th,td{border:1px solid #aaa;padding:6px 7px}
+                    th,td{border:1px solid #888;padding:6px 7px}
                     th{background:#eee}
                     .r{text-align:right}
                     .total{margin:14px 0 0 auto;width:330px}
@@ -132,9 +134,17 @@ class MainActivity : Activity() {
 
                 pdfWebView.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String) {
-                        savePdfFromWebView(pdfWebView, title)
+                        view.postDelayed({
+                            savePdfFromWebView(pdfWebView, title)
+                        }, 350)
                     }
                 }
+
+                val root = window.decorView as? ViewGroup
+                root?.addView(
+                    pdfWebView,
+                    ViewGroup.LayoutParams(595, ViewGroup.LayoutParams.WRAP_CONTENT)
+                )
                 pdfWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
             }
         }
@@ -143,22 +153,21 @@ class MainActivity : Activity() {
             try {
                 val pageWidth = 595
                 val pageHeight = 842
+                val cssHeight = view.contentHeight
+                val scale = if (view.scale > 0f) view.scale else 1f
+                val contentHeight = maxOf((cssHeight * scale).toInt(), 1)
+
                 view.measure(
                     View.MeasureSpec.makeMeasureSpec(pageWidth, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                    View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY)
                 )
-                view.layout(0, 0, pageWidth, view.measuredHeight)
+                view.layout(0, 0, pageWidth, contentHeight)
 
-                val contentHeight = maxOf(view.measuredHeight, 1)
                 val pageCount = (contentHeight + pageHeight - 1) / pageHeight
                 val document = PdfDocument()
 
                 for (pageNumber in 0 until pageCount) {
-                    val pageInfo = PdfDocument.PageInfo.Builder(
-                        pageWidth,
-                        pageHeight,
-                        pageNumber + 1
-                    ).create()
+                    val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber + 1).create()
                     val page = document.startPage(pageInfo)
                     page.canvas.save()
                     page.canvas.clipRect(0, 0, pageWidth, pageHeight)
@@ -178,11 +187,11 @@ class MainActivity : Activity() {
                         put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                         put(MediaStore.Downloads.IS_PENDING, 1)
                     }
-                    val uri = contentResolver.insert(
-                        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                        values
-                    ) ?: throw IllegalStateException("Gagal membuat file PDF")
-                    contentResolver.openOutputStream(uri)?.use { document.writeTo(it) }
+                    val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                        ?: throw IllegalStateException("Gagal membuat file PDF")
+                    val output = contentResolver.openOutputStream(uri)
+                        ?: throw IllegalStateException("Gagal membuka file PDF")
+                    output.use { document.writeTo(it) }
                     values.clear()
                     values.put(MediaStore.Downloads.IS_PENDING, 0)
                     contentResolver.update(uri, values, null, null)
@@ -196,9 +205,11 @@ class MainActivity : Activity() {
 
                 document.close()
                 toast("PDF tersimpan di Download/$filename")
+                (view.parent as? ViewGroup)?.removeView(view)
                 view.destroy()
             } catch (e: Exception) {
                 toast("Gagal menyimpan PDF: ${e.message}")
+                (view.parent as? ViewGroup)?.removeView(view)
                 view.destroy()
             }
         }
