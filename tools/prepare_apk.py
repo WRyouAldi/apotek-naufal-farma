@@ -4,14 +4,6 @@ import base64, json, re, zlib
 p = Path("app/src/main/assets/index.html")
 s = p.read_text(encoding="utf-8")
 
-# Prevent the native barcode bridge from being accidentally embedded in the Excel export HTML.
-xls_start = s.find("const xls=")
-bridge = s.find("<!-- Native Android barcode bridge.", xls_start)
-if xls_start >= 0 and bridge >= 0:
-    end = s.find("</body></html>';", bridge)
-    if end >= 0:
-        s = s[:bridge] + "</table></body></html>';" + s[end + len("</body></html>;"):]
-
 # Attach Harga Beli from the xReport2 database to every product.
 cost_file = Path("tools/harga_beli.b64")
 if cost_file.exists():
@@ -26,11 +18,25 @@ if cost_file.exists():
     except Exception as e:
         print("Harga Beli injection skipped:", e)
 
-# Inject Barang Keluar into the offline APK.
+# Make the existing Excel report work inside the Android WebView.
+# The normal browser download remains available as a fallback.
+native_download = '''\n    if (window.Android && typeof window.Android.saveReport === "function") {\n      window.Android.saveReport(filename, xls, "application/vnd.ms-excel");\n      return;\n    }\n'''
+if "window.Android.saveReport(filename, xls" not in s:
+    marker = '    const blob=new Blob([xls],{type:"application/vnd.ms-excel;charset=utf-8"});'
+    if marker in s:
+        s = s.replace(marker, native_download + marker, 1)
+
+# Inject Barang Keluar into the APK AFTER the real document body.
+# Do not use s.replace("</body>", ...) because the Excel export HTML
+# itself contains </body> and would corrupt the JavaScript string.
 module = Path("tools/barang_keluar.js")
-if module.exists() and "id=\"barangKeluarV1\"" not in s:
+if module.exists() and 'id="barangKeluarV1"' not in s:
     code = module.read_text(encoding="utf-8")
-    s = s.replace("</body>", "<script id=\"barangKeluarV1\">\n" + code + "\n</script>\n</body>", 1)
+    pos = s.lower().rfind("</body>")
+    if pos >= 0:
+        s = s[:pos] + '<script id="barangKeluarV1">\n' + code + '\n</script>\n' + s[pos:]
+    else:
+        s += '\n<script id="barangKeluarV1">\n' + code + '\n</script>\n'
 
 p.write_text(s, encoding="utf-8")
-print("Prepared APK HTML with Harga Beli + Barang Keluar")
+print("Prepared APK HTML with Harga Beli + Barang Keluar + native report download")
