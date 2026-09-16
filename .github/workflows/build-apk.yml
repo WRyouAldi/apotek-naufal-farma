@@ -23,11 +23,14 @@ jobs:
         with:
           gradle-version: '8.11'
 
+      - name: Prepare APK HTML
+        run: python3 tools/prepare_apk.py
+
       - name: Build debug APK
         run: gradle :app:assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Apotek-Naufal-Farma-V14-APK
+          name: Apotek-Naufal-Farma-V15-APK
           path: app/build/outputs/apk/debug/app-debug.apk
