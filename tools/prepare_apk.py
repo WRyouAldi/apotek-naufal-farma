@@ -4,7 +4,6 @@ p = Path('app/src/main/assets/index.html')
 s = p.read_text(encoding='utf-8')
 
 # The barcode bridge was accidentally embedded inside the Excel-export HTML string.
-# Remove that embedded copy so the WebView does not render JavaScript as visible text.
 xls_start = s.find('const xls=')
 bridge = s.find('<!-- Native Android barcode bridge.', xls_start)
 if xls_start >= 0 and bridge >= 0:
@@ -30,7 +29,7 @@ if old_prefix in s and 'class="dashboard"' not in s:
     s = s.replace(old_prefix, dashboard + '\n', 1)
 
 if 'id="sampleUIUXHelpers"' not in s:
-    helpers = '''<script id="sampleUIUXHelpers">\nfunction focusSearch(scan){const el=document.getElementById("q");if(el){el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>el.focus(),350);}if(scan){setTimeout(()=>{const b=document.getElementById("scanBarcode");if(b)b.click();},450);}}\nfunction focusCart(){const el=document.querySelector(".cart");if(el)el.scrollIntoView({behavior:"smooth",block:"start");}\nfunction focusReport(){const el=document.getElementById("laporanSection");if(el)el.scrollIntoView({behavior:"smooth",block:"start");}\nfunction focusSettings(){const el=document.querySelector("#backupBtn");if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.focus();}}\n</script>\n'''
+    helpers = '''<script id="sampleUIUXHelpers">\nfunction focusSearch(scan){const el=document.getElementById("q");if(el){el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>el.focus(),350);}if(scan){setTimeout(()=>{const b=document.getElementById("scanBarcode");if(b)b.click();},450);}}\nfunction focusCart(){const el=document.querySelector(".cart");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});}\nfunction focusReport(){const el=document.getElementById("laporanSection");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});}\nfunction focusSettings(){const el=document.querySelector("#backupBtn");if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.focus();}}\n</script>\n'''
     marker = '<!-- Native Android barcode bridge.'
     s = s.replace(marker, helpers + marker, 1)
 
