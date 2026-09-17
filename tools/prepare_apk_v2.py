@@ -27,15 +27,19 @@ if 'window.Android.saveReport(filename, xls' not in s:
     if marker in s:
         s=s.replace(marker,nd+marker,1)
 
-mod=Path('tools/barang_keluar_v3.js')
-code=mod.read_text(encoding='utf-8')
-if 'id="barangKeluarV3"' in s:
-    s=re.sub(r'<script id="barangKeluarV3">.*?</script>\s*', '', s, flags=re.S)
-if 'id="barangKeluarV2"' in s:
-    s=re.sub(r'<script id="barangKeluarV2">.*?</script>\s*', '', s, flags=re.S)
+# Replace feature modules at build time so the APK always contains the latest versions.
+for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1']:
+    s=re.sub(r'<script id="'+script_id+r'">.*?</script>\s*', '', s, flags=re.S)
+
+modules=[
+    ('barangKeluarV3',Path('tools/barang_keluar_v3.js')),
+    ('daftarItemCrudV1',Path('tools/daftar_item_crud.js')),
+]
 pos=s.lower().rfind('</body>')
-inject='<script id="barangKeluarV3">\n'+code+'\n</script>\n'
-s=s[:pos]+inject+s[pos:] if pos>=0 else s+'\n'+inject
+if pos<0:
+    raise SystemExit('index.html: </body> not found')
+inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
+s=s[:pos]+inject+s[pos:]
 
 p.write_text(s,encoding='utf-8')
-print('Prepared APK HTML with Harga Beli + Barang Keluar V3')
+print('Prepared APK HTML with Harga Beli + Barang Keluar V3 + Daftar Item CRUD')
