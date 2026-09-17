@@ -11,3 +11,51 @@ header{position:relative!important;top:auto!important;z-index:10!important;paddi
 .stat-card,.quick-btn{isolation:isolate!important}.stat-card{min-height:104px!important}.quick-btn.q-green{min-height:96px!important}.quick-btn:not(.q-green){min-height:102px!important}
 @media(max-width:430px){body{padding-bottom:86px!important}.wrap{padding:11px 11px 22px!important}.welcome-card{min-height:103px!important;padding:15px 16px!important}.welcome-card h2{font-size:19px!important}.stats-grid{gap:8px!important}.stat-card{min-height:102px!important;padding:11px!important;gap:4px!important}.stat-icon{width:34px!important;height:34px!important;flex-basis:34px!important}.stat-card b{font-size:15px!important}.stat-card .nf-auto-label{font-size:9px!important}.quick-grid{gap:8px!important}.quick-btn{min-height:96px!important;padding:11px 12px!important;gap:4px!important}.quick-btn.q-green{min-height:92px!important}.quick-btn span:not(.nf-auto-label){width:40px!important;height:40px!important;flex-basis:40px!important}.nf-glass-nav{bottom:8px!important;width:calc(100% - 14px)!important;border-radius:24px!important}.nf-glass-nav button{height:54px!important}.nf-glass-nav button span{font-size:19px!important}}
 @media(prefers-reduced-transparency:reduce){.welcome-card,.stat-card,.quick-btn,.search-card,.card,#laporanSection,.nf-glass-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#fff!important}}
+
+/* Report V2 */
+#laporanSection{position:relative!important;overflow:hidden!important;margin:0!important;padding:16px!important;border-radius:24px!important;background:rgba(255,255,255,.72)!important;border:1px solid rgba(255,255,255,.88)!important;box-shadow:0 14px 36px rgba(20,70,58,.11)!important}
+#laporanSection:before{content:"";position:absolute;inset:0 0 auto;height:96px;background:linear-gradient(135deg,rgba(8,127,99,.08),rgba(11,163,125,.02));pointer-events:none}
+#laporanSection h3{position:relative;display:flex!important;align-items:center!important;gap:10px!important;margin:0 0 5px!important;font-size:18px!important;line-height:1.15!important}
+#laporanSection h3 .nf-report-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(8,127,99,.11);color:var(--nf-green);font-size:21px;flex:none}
+#laporanSection h3 small{display:block;font-size:9px;letter-spacing:1.1px;color:var(--nf-green);margin-bottom:3px}
+#laporanSection h3 span:last-child{display:block}
+#laporanSection .nf-report-intro{position:relative!important;margin:0 0 14px!important;color:var(--nf-muted)!important;font-size:11px!important;line-height:1.45!important}
+#laporanSection .nf-report-controls{position:relative;display:grid!important;grid-template-columns:1fr 1fr;gap:9px!important;padding:11px!important;border-radius:19px!important;background:rgba(244,250,248,.78)!important;border:1px solid #e0ebe7!important}
+#laporanSection .nf-report-controls label{grid-column:1/-1!important;display:flex!important;flex-direction:column!important;gap:6px!important}
+#laporanSection .nf-date-label{font-size:10px;font-weight:800;color:#64756f}
+#laporanSection .nf-report-controls input{height:46px!important;padding:0 12px!important;border:1px solid #d9e6e1!important;border-radius:13px!important;background:#fff!important;font-size:15px!important;color:var(--nf-text)!important}
+#laporanSection .nf-report-quick{display:flex;gap:6px;margin-top:1px}
+#laporanSection .nf-report-quick button{height:32px!important;padding:0 11px!important;border-radius:10px!important;background:#e8f5f1!important;color:var(--nf-green)!important;font-size:10px!important}
+#laporanSection .nf-report-action{min-height:62px!important;padding:8px 10px!important;display:grid!important;grid-template-columns:32px 1fr!important;grid-template-rows:1fr 1fr!important;column-gap:8px!important;text-align:left!important;border-radius:15px!important}
+#laporanSection .nf-report-action span{grid-row:1/3;width:32px;height:32px;align-self:center;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+#laporanSection .nf-report-action b{align-self:end;font-size:12px;line-height:1.1}
+#laporanSection .nf-report-action small{align-self:start;color:var(--nf-muted);font-size:9px;line-height:1.1}
+#laporanSection .nf-excel{background:#e9f7f2!important;color:var(--nf-green)!important}
+#laporanSection .nf-excel span{background:#d4eee6}
+#laporanSection .nf-print{background:linear-gradient(135deg,#087f63,#0ba37d)!important;color:#fff!important;box-shadow:0 8px 18px rgba(8,127,99,.2)!important}
+#laporanSection .nf-print small{color:rgba(255,255,255,.8)!important}
+#laporanSection .nf-report-kpi{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 8px}
+#laporanSection .nf-kpi{min-width:0;padding:11px;border-radius:17px;background:rgba(247,251,249,.86);border:1px solid #e0ebe7}
+#laporanSection .nf-kpi span,#laporanSection .nf-kpi small{display:block;color:var(--nf-muted);font-size:9px}
+#laporanSection .nf-kpi b{display:block;margin:3px 0;font-size:17px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#laporanSection .nf-kpi-sales{grid-column:1/-1;background:linear-gradient(135deg,#e8f8f3,#f8fcfb);border-color:#cfe9df}
+#laporanSection .nf-kpi-sales b{font-size:21px;color:var(--nf-green)}
+#laporanSection .nf-report-status{margin:7px 2px 8px;font-size:10px;color:var(--nf-muted)}
+#reportPreview{position:relative;margin-top:0!important}
+#reportPreview .mobile-summary{display:none!important}
+#reportPreview .mobile-list{display:flex;flex-direction:column;gap:8px}
+#reportPreview .mobile-item{padding:11px 12px!important;border:1px solid #e1ebe7!important;border-radius:16px!important;background:rgba(255,255,255,.86)!important;box-shadow:0 5px 16px rgba(20,70,58,.045)!important}
+#reportPreview .item-name{font-size:13px!important;font-weight:800!important;margin-bottom:8px!important;color:var(--nf-text)!important}
+#reportPreview .item-meta{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+#reportPreview .item-meta span{font-size:9px!important;color:var(--nf-muted)!important}
+#reportPreview .item-meta b{font-size:11px!important;margin-top:2px!important}
+#reportPreview .mobile-total{margin-top:10px!important;padding:12px 4px 2px!important;border-top:1px solid #b9d6cc!important;font-size:11px!important}
+#reportPreview .mobile-total b{font-size:15px!important;color:var(--nf-green)}
+@media(max-width:430px){
+ #laporanSection{padding:13px!important;border-radius:21px!important}
+ #laporanSection .nf-report-controls{grid-template-columns:1fr!important}
+ #laporanSection .nf-report-controls label{grid-column:auto!important}
+ #laporanSection .nf-report-action{min-height:58px!important}
+ #laporanSection .nf-report-kpi{grid-template-columns:1fr 1fr}
+ #laporanSection .nf-kpi-sales{grid-column:1/-1}
+}
