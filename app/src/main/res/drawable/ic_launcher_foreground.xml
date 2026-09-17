@@ -4,7 +4,10 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Safe-zone foreground for the adaptive launcher icon. The medical cross stays centered and avoids edge cropping. -->
+    <!-- Same visual mark as the main Naufal Farma logo, kept inside the adaptive safe area. -->
+    <path
+        android:fillColor="#FF1FA463"
+        android:pathData="M54,16A38,38 0,1 0,54 92A38,38 0,1 0,54 16" />
     <path
         android:fillColor="#FFFFFFFF"
         android:pathData="M46,30h16v16h16v16H62v16H46V62H30V46h16z" />
