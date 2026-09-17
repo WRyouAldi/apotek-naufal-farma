@@ -34,12 +34,11 @@ modules=[
     ('daftarItemCrudV1',Path('tools/daftar_item_crud.js')),
     ('reportUiV2',Path('tools/report_ui_v2.js')),
 ]
-# Target the actual document closing tag, not the literal </body> inside
-# the Excel HTML string used by the report exporter. Older builds injected
-# the page shell into that string and leaked raw JavaScript into the UI.
-s=re.sub(r'<script id="naufalPageArchitectureV3">.*?</script>\\s*', '', s, flags=re.S)
-s=re.sub(r'<script id="naufalLiquidLayoutFix">.*?</script>\\s*', '', s, flags=re.S)
-pos_match=re.search(r'</body>\\s*</html>\\s*
+# Clean up legacy bad injections. The old rfind('</body>') matched the literal
+# </body> embedded in the Excel export string instead of the document closing tag.
+s=re.sub(r'<script id="naufalPageArchitectureV3">.*?</script>\s*', '', s, flags=re.S)
+s=re.sub(r'<script id="naufalLiquidLayoutFix">.*?</script>\s*', '', s, flags=re.S)
+pos_match=re.search(r'</body>\s*</html>\s*
 inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
 
 # Runtime DOM normalization prevents legacy inline text nodes from collapsing
@@ -98,7 +97,7 @@ p.write_text(s,encoding='utf-8')
 print('Prepared APK HTML with consolidated Liquid Glass UI V3 and mobile layout normalization')
 , s, flags=re.I)
 if not pos_match:
-    raise SystemExit('index.html: actual </body></html> not found')
+    raise SystemExit('index.html: actual document closing tag not found')
 pos=pos_match.start()
 inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
 
