@@ -25,7 +25,7 @@ if 'window.Android.saveReport(filename, xls' not in s:
     if marker in s:
         s=s.replace(marker,nd+marker,1)
 
-# Remove previous generated modules before injecting current versions.
+# Remove generated feature modules before injecting current versions.
 for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1']:
     s=re.sub(r'<script id="'+script_id+r'">.*?</script>\s*', '', s, flags=re.S)
 
@@ -39,14 +39,16 @@ if pos<0:
 inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
 s=s[:pos]+inject+s[pos:]
 
-# Apply the pharmacy-focused mobile theme at build time so the source UI/features remain intact.
+# Keep exactly one application theme. Remove superseded UI theme layers before injecting V3.
+for style_id in ['sampleUIUXV15','referenceUIUX','naufalPharmacyThemeV2','naufalLiquidThemeV3']:
+    s=re.sub(r'<style id="'+style_id+r'">.*?</style>\s*', '', s, flags=re.S)
+
 theme=Path('tools/ui_theme_v2.css').read_text(encoding='utf-8')
-style_tag='<style id="naufalPharmacyThemeV2">\n'+theme+'\n</style>\n'
-s=re.sub(r'<style id="naufalPharmacyThemeV2">.*?</style>\s*', '', s, flags=re.S)
+style_tag='<style id="naufalLiquidThemeV3">\n'+theme+'\n</style>\n'
 head_pos=s.lower().find('</head>')
 if head_pos<0:
     raise SystemExit('index.html: </head> not found')
 s=s[:head_pos]+style_tag+s[head_pos:]
 
 p.write_text(s,encoding='utf-8')
-print('Prepared APK HTML with Harga Beli + Barang Keluar V3 + Daftar Item CRUD + Pharmacy UI Theme V2')
+print('Prepared APK HTML with one consolidated Liquid Glass UI theme V3')
