@@ -1,105 +1,55 @@
 :root{
-  --nf-primary:#087f63;
-  --nf-primary-dark:#06694f;
-  --nf-primary-soft:#e8f7f2;
-  --nf-blue:#2f6fbd;
-  --nf-blue-soft:#eaf2ff;
-  --nf-orange:#d98222;
-  --nf-orange-soft:#fff2df;
-  --nf-indigo:#5968c7;
-  --nf-indigo-soft:#eef0ff;
-  --nf-bg:#f4f7f6;
-  --nf-card:#ffffff;
-  --nf-text:#18332c;
-  --nf-muted:#71807b;
-  --nf-line:#e1ebe7;
-  --nf-shadow:0 4px 18px rgba(18,65,53,.07);
+  --nf-green:#087f63;--nf-green-2:#0b9b78;--nf-green-soft:#e9f8f3;
+  --nf-blue:#3978d4;--nf-orange:#df8a2e;--nf-red:#d95656;
+  --nf-bg:#f3f6f5;--nf-surface:#fff;--nf-text:#17332b;--nf-muted:#72817c;
+  --nf-line:#e0e9e5;--nf-glass:rgba(255,255,255,.78);
+  --nf-shadow:0 8px 28px rgba(18,70,57,.09);
+  --nf-radius:20px;
 }
+*{box-sizing:border-box}
+html,body{background:var(--nf-bg)!important;color:var(--nf-text)!important;font-family:Inter,Roboto,Arial,sans-serif!important;-webkit-font-smoothing:antialiased}
+body{padding-bottom:88px!important}
 
-html{background:var(--nf-bg)}
-body{background:var(--nf-bg)!important;color:var(--nf-text)!important;font-family:Inter,Roboto,Arial,sans-serif!important;-webkit-font-smoothing:antialiased}
+/* SINGLE THEME: the header is the visual anchor; content stays solid for legibility. */
+header{position:relative!important;top:auto!important;background:linear-gradient(145deg,#087b60,#0b9a77)!important;padding:15px 15px 18px!important;border-radius:0 0 28px 28px!important;box-shadow:0 7px 24px rgba(5,76,58,.18)!important}
+.topbar{max-width:760px;margin:auto;display:flex;align-items:center;gap:12px}
+.brand-mark{width:46px!important;height:46px!important}.brand-text{flex:1}.brand-text h1{font-size:19px!important;letter-spacing:-.25px}.brand-text div{font-size:10px!important;opacity:.88}
+.top-notify{width:42px!important;height:42px!important;border-radius:50%!important;background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.18)!important}
+.wrap{max-width:760px!important;padding:13px 14px 24px!important}
 
-/* Header: lighter visual weight, clearer pharmacy identity */
-header{position:relative!important;top:auto!important;background:linear-gradient(135deg,#087b60,#09906f)!important;padding:14px 15px 17px!important;border-radius:0 0 24px 24px!important;box-shadow:0 5px 18px rgba(5,72,56,.16)!important}
-.topbar{max-width:760px;margin:auto;display:flex;align-items:center;gap:11px}
-.brand-mark{width:46px!important;height:46px!important}
-.brand-text h1{font-size:19px!important;letter-spacing:-.2px}
-.brand-text div{font-size:10px!important;opacity:.9}
-.top-notify{width:40px!important;height:40px!important;border-radius:12px!important;background:rgba(255,255,255,.13)!important}
+/* HOME */
+.welcome-card{background:linear-gradient(135deg,#e7f8f2,#f8fbfa)!important;border:1px solid #d6ebe3!important;border-radius:22px!important;box-shadow:var(--nf-shadow)!important;min-height:108px!important;padding:16px 18px!important}
+.welcome-card h2{font-size:21px!important;color:var(--nf-text)!important;letter-spacing:-.3px}.welcome-card p{font-size:11px!important;color:var(--nf-muted)!important}.eyebrow{color:var(--nf-green)!important}
+.stats-grid{gap:9px!important;margin:0 0 15px!important}.stat-card{background:rgba(255,255,255,.92)!important;border:1px solid var(--nf-line)!important;border-radius:18px!important;box-shadow:var(--nf-shadow)!important;padding:12px!important}.stat-card b{font-size:16px!important}.stat-icon{width:39px!important;height:39px!important;border-radius:13px!important}
+.quick-section{margin:0 0 16px!important}.section-head{margin:0 2px 9px!important}.section-head h3{font-size:15px!important;font-weight:800!important}.section-head span{font-size:9px!important;color:var(--nf-muted)!important}
+.quick-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+.quick-btn{min-height:88px!important;background:#fff!important;border:1px solid var(--nf-line)!important;border-radius:20px!important;box-shadow:var(--nf-shadow)!important;color:var(--nf-text)!important;padding:12px!important;transition:transform .16s ease,box-shadow .16s ease}
+.quick-btn:active{transform:scale(.98)!important;box-shadow:0 3px 12px rgba(18,70,57,.08)!important}
+.quick-btn b{font-size:12px!important}.quick-btn small{font-size:9px!important;line-height:1.3;color:var(--nf-muted)!important}.quick-btn span{width:43px!important;height:43px!important;border-radius:15px!important}
+.quick-btn.q-green{grid-column:1/-1!important;min-height:94px!important;background:linear-gradient(135deg,#087f63,#0b9b78)!important;border:0!important;box-shadow:0 9px 25px rgba(8,127,99,.23)!important;color:#fff!important}.quick-btn.q-green b{color:#fff!important;font-size:13px!important}.quick-btn.q-green small{color:rgba(255,255,255,.82)!important}.quick-btn.q-green span{background:rgba(255,255,255,.17)!important;color:#fff!important}
+.quick-btn.q-blue span{background:#eaf2ff!important;color:var(--nf-blue)!important}.quick-btn.q-indigo span{background:#eef0ff!important;color:#5c6bd1!important}.quick-btn.q-orange span{background:#fff1df!important;color:var(--nf-orange)!important}
 
-.wrap{max-width:760px!important;padding:12px 14px 28px!important}
+/* SEARCH: utility surface, not a navigation card */
+.search-card{background:#fff!important;border:1px solid var(--nf-line)!important;border-radius:20px!important;box-shadow:var(--nf-shadow)!important;padding:11px!important;margin-bottom:11px!important}.search-card:before{content:'Cari barang';display:block;font-size:10px;font-weight:800;color:var(--nf-muted);margin:1px 3px 7px}.search{gap:7px!important}.search input{height:48px!important;background:#f7faf9!important;border:1px solid #dce8e3!important;border-radius:15px!important;font-size:15px!important}.search input:focus{border-color:var(--nf-green)!important;box-shadow:0 0 0 4px rgba(8,127,99,.09)!important}#scanBarcode{height:48px!important;min-width:52px!important;border-radius:15px!important;background:var(--nf-green)!important;font-size:19px!important}
 
-/* Welcome: one clear orientation point */
-.welcome-card{background:linear-gradient(135deg,#e8f7f2,#f8fbfa)!important;border:1px solid #d7ebe4!important;border-radius:19px!important;box-shadow:var(--nf-shadow)!important;min-height:104px!important;padding:15px 17px!important;margin-bottom:11px!important}
-.welcome-card h2{font-size:20px!important;color:var(--nf-text)!important}
-.welcome-card p{font-size:11px!important;color:var(--nf-muted)!important;max-width:230px}
-.eyebrow{color:var(--nf-primary)!important}
+/* CONTENT: no glass, no stacked glass. */
+.card{background:var(--nf-surface)!important;border:1px solid var(--nf-line)!important;border-radius:18px!important;box-shadow:var(--nf-shadow)!important}.name{font-size:15px!important;color:var(--nf-text)!important}.code,.meta{font-size:10px!important;color:var(--nf-muted)!important}.price{font-size:16px!important;color:var(--nf-green)!important}.badge{background:var(--nf-green-soft)!important;color:var(--nf-green)!important}
+button{font-family:inherit!important;border-radius:13px!important;font-weight:700}button:focus-visible{outline:3px solid rgba(8,127,99,.18);outline-offset:2px}.actions button{min-height:44px!important}.actions button:first-child,.qty button{background:var(--nf-green)!important}.total{font-size:20px!important;color:var(--nf-text)!important}
 
-/* Stats stay secondary to the actual work */
-.stats-grid{gap:8px!important;margin-bottom:14px!important}
-.stat-card{border:1px solid var(--nf-line)!important;border-radius:15px!important;box-shadow:var(--nf-shadow)!important;padding:11px!important}
-.stat-card b{font-size:16px!important}
-.stat-icon{width:38px!important;height:38px!important;border-radius:11px!important}
+/* BARCODE MODAL */
+.scanBox{background:rgba(12,28,24,.56)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.scanCard{border-radius:24px!important;border:1px solid rgba(255,255,255,.65)!important;box-shadow:0 18px 50px rgba(0,0,0,.25)!important}
 
-/* Main task chooser: stronger hierarchy */
-.quick-section{margin:0 0 15px!important}
-.section-head{margin:0 2px 8px!important}
-.section-head h3{font-size:15px!important;font-weight:800!important}
-.section-head span{font-size:9px!important;color:var(--nf-muted)!important;font-weight:600!important}
-.quick-grid{grid-template-columns:1fr 1fr!important;gap:9px!important}
-.quick-btn{min-height:86px!important;border:1px solid var(--nf-line)!important;border-radius:17px!important;background:#fff!important;box-shadow:var(--nf-shadow)!important;padding:11px!important;transition:transform .12s ease,box-shadow .12s ease}
-.quick-btn:active{transform:scale(.985);box-shadow:0 2px 9px rgba(18,65,53,.08)!important}
-.quick-btn b{font-size:12px!important;color:var(--nf-text)!important}
-.quick-btn small{font-size:9px!important;line-height:1.25;color:var(--nf-muted)!important}
-.quick-btn span{width:42px!important;height:42px!important;border-radius:13px!important}
+/* REPORT / HISTORY */
+#laporanSection{background:#fff!important;border:1px solid var(--nf-line)!important;border-radius:20px!important;box-shadow:var(--nf-shadow)!important}#laporanSection h3{color:var(--nf-text)!important}#laporanSection .report-controls button{background:var(--nf-green)!important}.history{border-top-color:var(--nf-line)!important}.history-item{border-bottom-color:var(--nf-line)!important}
 
-/* Make the most frequent action unmistakable */
-.quick-btn.q-green{grid-column:1/-1!important;min-height:92px!important;background:linear-gradient(135deg,#087f63,#09906f)!important;border-color:transparent!important;color:#fff!important;box-shadow:0 6px 18px rgba(8,127,99,.20)!important}
-.quick-btn.q-green b{color:#fff!important;font-size:13px!important}
-.quick-btn.q-green small{color:rgba(255,255,255,.82)!important}
-.quick-btn.q-green span{background:rgba(255,255,255,.16)!important;color:#fff!important}
-.quick-btn.q-blue span{background:var(--nf-blue-soft)!important;color:var(--nf-blue)!important}
-.quick-btn.q-indigo span{background:var(--nf-indigo-soft)!important;color:var(--nf-indigo)!important}
-.quick-btn.q-orange span{background:var(--nf-orange-soft)!important;color:var(--nf-orange)!important}
+/* LIQUID GLASS NAVIGATION ONLY. One floating layer, no glass-on-glass. */
+.nf-glass-nav{position:fixed;z-index:900;left:50%;bottom:12px;transform:translateX(-50%);width:min(560px,calc(100% - 22px));display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:7px;border:1px solid rgba(255,255,255,.72);border-radius:25px;background:var(--nf-glass);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);box-shadow:0 12px 34px rgba(20,60,50,.18),inset 0 1px 0 rgba(255,255,255,.85)}
+.nf-glass-nav button{min-width:0;height:58px;padding:5px 3px;background:transparent!important;color:#71807b!important;border:0!important;border-radius:18px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px!important}.nf-glass-nav button span{font-size:20px;line-height:1}.nf-glass-nav button b{font-size:9px;font-weight:700}.nf-glass-nav button.active{background:rgba(8,127,99,.12)!important;color:var(--nf-green)!important}.nf-glass-nav button.primary{background:linear-gradient(135deg,#087f63,#0b9b78)!important;color:#fff!important;box-shadow:0 5px 15px rgba(8,127,99,.24)}
 
-/* Search is visually a separate utility, not another navigation choice */
-.search-card{background:#fff!important;border:1px solid var(--nf-line)!important;border-radius:17px!important;box-shadow:var(--nf-shadow)!important;padding:10px!important;margin-bottom:10px!important}
-.search-card:before{content:'Cari barang';display:block;font-size:10px;font-weight:800;color:var(--nf-muted);margin:1px 3px 7px}
-.search{gap:7px!important}
-.search input{height:47px!important;background:#f8faf9!important;border:1px solid #dfe9e5!important;border-radius:13px!important;font-size:15px!important}
-.search input::placeholder{color:#9aa6a2}
-.search input:focus{border-color:var(--nf-primary)!important;box-shadow:0 0 0 3px rgba(8,127,99,.10)!important}
-#scanBarcode{height:47px!important;min-width:52px!important;border-radius:13px!important;background:var(--nf-primary)!important;font-size:19px!important}
-#barcodeStatus{font-size:10px!important;color:var(--nf-muted)!important;margin:6px 3px 1px!important}
+/* Page title for isolated modules */
+.nf-page-title{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding:2px}.nf-page-title h2{margin:0;font-size:20px;letter-spacing:-.25px}.nf-page-title p{margin:2px 0 0;font-size:10px;color:var(--nf-muted)}.nf-back{width:40px!important;height:40px!important;padding:0!important;border-radius:50%!important;background:#fff!important;color:var(--nf-green)!important;border:1px solid var(--nf-line)!important}
 
-/* Product results: prioritize name and price */
-.card{background:var(--nf-card)!important;border:1px solid var(--nf-line)!important;border-radius:17px!important;box-shadow:var(--nf-shadow)!important}
-.name{font-size:15px!important;color:var(--nf-text)!important}
-.code,.meta{font-size:10px!important;color:var(--nf-muted)!important}
-.price{font-size:16px!important;color:var(--nf-primary)!important}
-.badge{background:var(--nf-primary-soft)!important;color:var(--nf-primary)!important}
+@media(max-width:430px){body{padding-bottom:84px!important}.wrap{padding:11px 11px 22px!important}.welcome-card{min-height:102px!important;padding:15px 16px!important}.quick-grid{gap:8px!important}.quick-btn{min-height:84px!important}.quick-btn.q-green{min-height:90px!important}.nf-glass-nav{bottom:9px;width:calc(100% - 16px);border-radius:23px}.nf-glass-nav button{height:55px}.nf-glass-nav button span{font-size:19px}}
 
-/* Buttons and transaction areas */
-button{font-family:inherit!important;border-radius:11px!important;font-weight:700}
-.actions button{min-height:44px!important}
-.actions button:first-child{background:var(--nf-primary)!important}
-.qty button{background:var(--nf-primary)!important}
-.total{font-size:20px!important;color:var(--nf-text)!important}
-
-/* Reports/history remain clean and secondary */
-#laporanSection{border-color:var(--nf-line)!important;border-radius:17px!important;box-shadow:var(--nf-shadow)!important}
-#laporanSection h3{color:var(--nf-text)!important}
-#laporanSection .report-controls button{background:var(--nf-primary)!important}
-.history{border-top-color:var(--nf-line)!important}
-.history-item{border-bottom-color:var(--nf-line)!important}
-
-@media(max-width:430px){
-  .wrap{padding:11px 11px 24px!important}
-  .welcome-card{min-height:100px!important}
-  .quick-grid{gap:8px!important}
-  .quick-btn{min-height:82px!important}
-  .quick-btn.q-green{min-height:88px!important}
-  .quick-btn b{font-size:11.5px!important}
-  .quick-btn small{font-size:8.5px!important}
-  .stats-grid{margin-bottom:12px!important}
-}
+@media(prefers-reduced-transparency:reduce){.nf-glass-nav{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}}
+@media(prefers-reduced-motion:reduce){.quick-btn{transition:none}}
