@@ -59,3 +59,117 @@ header{position:relative!important;top:auto!important;z-index:10!important;paddi
  #laporanSection .nf-report-kpi{grid-template-columns:1fr 1fr}
  #laporanSection .nf-kpi-sales{grid-column:1/-1}
 }
+
+/* =========================================================
+   NAUFAL FARMA VISUAL IDENTITY V4
+   Fresh emerald + deep navy pharmacy identity
+   ========================================================= */
+:root{
+  --nf-green:#087f63;
+  --nf-green-2:#11a982;
+  --nf-green-dark:#064f42;
+  --nf-navy:#17324d;
+  --nf-bg:#f2f7f5;
+  --nf-bg-2:#e8f2ef;
+  --nf-text:#17342d;
+  --nf-muted:#71817c;
+  --nf-line:#dce9e4;
+  --nf-surface:rgba(255,255,255,.82);
+  --nf-surface-solid:#fff;
+  --nf-mint:#e3f5ef;
+  --nf-cyan:#e7f4f7;
+  --nf-amber:#fff3df;
+  --nf-danger:#fdebea;
+  --nf-shadow:0 12px 32px rgba(24,67,57,.10);
+  --nf-shadow-lg:0 18px 44px rgba(20,61,51,.14);
+}
+html,body{background:var(--nf-bg)!important;color:var(--nf-text)!important}
+body{font-family:Inter,Roboto,Arial,sans-serif!important}
+header{
+  background:linear-gradient(135deg,#075c4b 0%,#087f63 55%,#0ca982 100%)!important;
+  box-shadow:0 10px 30px rgba(5,77,61,.20)!important;
+}
+.wrap{background:transparent!important}
+.welcome-card{
+  background:linear-gradient(135deg,#e5f6f0 0%,#f8fcfa 62%,#edf8f5 100%)!important;
+  border-color:rgba(255,255,255,.95)!important;
+  box-shadow:var(--nf-shadow-lg)!important;
+}
+.welcome-card h2{color:var(--nf-green-dark)!important}
+.stats-grid .stat-card{
+  background:var(--nf-surface)!important;
+  border-color:rgba(255,255,255,.94)!important;
+  box-shadow:var(--nf-shadow)!important;
+}
+.stat-icon{background:var(--nf-mint)!important;color:var(--nf-green)!important}
+.stat-stock .stat-icon{background:var(--nf-danger)!important;color:#c84f4f!important}
+.quick-btn{
+  background:rgba(255,255,255,.86)!important;
+  border-color:rgba(255,255,255,.95)!important;
+}
+.quick-btn.q-green{
+  background:linear-gradient(135deg,#087f63,#10a77f)!important;
+}
+.quick-btn.q-blue{
+  background:linear-gradient(135deg,#f5fbfc,#e7f4f7)!important;
+}
+.quick-btn.q-indigo{
+  background:linear-gradient(135deg,#f7f8fc,#edf0fa)!important;
+}
+.quick-btn.q-orange{
+  background:linear-gradient(135deg,#fffaf1,#fff0d7)!important;
+}
+.search-card,.card,#laporanSection{
+  background:var(--nf-surface)!important;
+  border-color:rgba(255,255,255,.95)!important;
+  box-shadow:var(--nf-shadow)!important;
+}
+.search input{
+  background:#fbfdfc!important;
+  border-color:var(--nf-line)!important;
+}
+#scanBarcode{
+  background:var(--nf-green)!important;
+}
+.nf-page-head h2{color:var(--nf-navy)!important}
+.nf-page-head p{color:var(--nf-muted)!important}
+.nf-back{
+  background:var(--nf-mint)!important;
+  color:var(--nf-green)!important;
+}
+.nf-glass-nav{
+  background:rgba(247,251,249,.84)!important;
+  border-color:rgba(255,255,255,.98)!important;
+  box-shadow:0 16px 42px rgba(20,61,51,.18),inset 0 1px 0 #fff!important;
+}
+.nf-glass-nav button.active{
+  background:var(--nf-mint)!important;
+  color:var(--nf-green-dark)!important;
+}
+.nf-glass-nav button.primary{
+  background:linear-gradient(135deg,#075f4e,#0ca982)!important;
+}
+.nf-report-kpi .nf-kpi-sales{
+  background:linear-gradient(135deg,#e2f5ef,#edf8f5)!important;
+  border-color:#c8e6dc!important;
+}
+.nf-report-kpi .nf-kpi-sales b{color:var(--nf-green-dark)!important}
+#laporanSection .nf-report-icon{background:var(--nf-mint)!important;color:var(--nf-green)!important}
+#laporanSection .nf-excel{
+  background:var(--nf-cyan)!important;color:#267488!important
+}
+#laporanSection .nf-excel span{background:#d7edf2!important}
+#laporanSection .nf-print{
+  background:linear-gradient(135deg,#17324d,#244c6e)!important;
+}
+#laporanSection .nf-report-controls{
+  background:rgba(241,248,245,.9)!important;
+  border-color:var(--nf-line)!important;
+}
+#laporanSection .nf-report-quick button{
+  background:var(--nf-mint)!important;color:var(--nf-green-dark)!important;
+}
+@media(max-width:430px){
+  .nf-page-head h2{font-size:20px!important}
+  .nf-page-head p{font-size:10px!important}
+}
