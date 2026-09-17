@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#E9F7F0" />
+    <!-- Adaptive icon background: matches the Naufal Farma green identity. -->
+    <solid android:color="#1FA463" />
 </shape>
