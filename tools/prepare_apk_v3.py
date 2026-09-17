@@ -37,7 +37,47 @@ pos=s.lower().rfind('</body>')
 if pos<0:
     raise SystemExit('index.html: </body> not found')
 inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
-s=s[:pos]+inject+s[pos:]
+
+# Runtime DOM normalization prevents legacy inline text nodes from collapsing
+# labels in the compact mobile cards. It only wraps direct text nodes and does
+# not change feature logic, data, navigation, or transaction behavior.
+layout_fix='''
+<script id="naufalLiquidLayoutFix">
+(function(){
+  function wrapDirectText(root){
+    Array.from(root.childNodes).forEach(function(node){
+      if(node.nodeType===3 && node.textContent.trim()){
+        var span=document.createElement('span');
+        span.className='nf-auto-label';
+        span.textContent=node.textContent.trim();
+        root.replaceChild(span,node);
+      }
+    });
+  }
+  function fix(){
+    document.querySelectorAll('.stat-card').forEach(function(card){
+      var copy=card.querySelector(':scope > div:last-child');
+      if(copy && !copy.classList.contains('stat-icon')){
+        wrapDirectText(copy);
+        copy.classList.add('nf-stat-copy');
+      }
+    });
+    document.querySelectorAll('.quick-btn').forEach(function(btn){
+      wrapDirectText(btn);
+      btn.querySelectorAll('.nf-auto-label').forEach(function(el){
+        if(!el.classList.contains('nf-quick-label')) el.classList.add('nf-quick-label');
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fix);
+  else fix();
+  new MutationObserver(function(){fix()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+'''
+
+dom_end=inject+layout_fix
+s=s[:pos]+dom_end+s[pos:]
 
 # Keep exactly one application theme. Remove superseded UI theme layers before injecting V3.
 for style_id in ['sampleUIUXV15','referenceUIUX','naufalPharmacyThemeV2','naufalLiquidThemeV3']:
@@ -51,4 +91,4 @@ if head_pos<0:
 s=s[:head_pos]+style_tag+s[head_pos:]
 
 p.write_text(s,encoding='utf-8')
-print('Prepared APK HTML with one consolidated Liquid Glass UI theme V3')
+print('Prepared APK HTML with consolidated Liquid Glass UI V3 and mobile layout normalization')
