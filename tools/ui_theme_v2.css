@@ -1,0 +1,105 @@
+:root{
+  --nf-primary:#087f63;
+  --nf-primary-dark:#06694f;
+  --nf-primary-soft:#e8f7f2;
+  --nf-blue:#2f6fbd;
+  --nf-blue-soft:#eaf2ff;
+  --nf-orange:#d98222;
+  --nf-orange-soft:#fff2df;
+  --nf-indigo:#5968c7;
+  --nf-indigo-soft:#eef0ff;
+  --nf-bg:#f4f7f6;
+  --nf-card:#ffffff;
+  --nf-text:#18332c;
+  --nf-muted:#71807b;
+  --nf-line:#e1ebe7;
+  --nf-shadow:0 4px 18px rgba(18,65,53,.07);
+}
+
+html{background:var(--nf-bg)}
+body{background:var(--nf-bg)!important;color:var(--nf-text)!important;font-family:Inter,Roboto,Arial,sans-serif!important;-webkit-font-smoothing:antialiased}
+
+/* Header: lighter visual weight, clearer pharmacy identity */
+header{position:relative!important;top:auto!important;background:linear-gradient(135deg,#087b60,#09906f)!important;padding:14px 15px 17px!important;border-radius:0 0 24px 24px!important;box-shadow:0 5px 18px rgba(5,72,56,.16)!important}
+.topbar{max-width:760px;margin:auto;display:flex;align-items:center;gap:11px}
+.brand-mark{width:46px!important;height:46px!important}
+.brand-text h1{font-size:19px!important;letter-spacing:-.2px}
+.brand-text div{font-size:10px!important;opacity:.9}
+.top-notify{width:40px!important;height:40px!important;border-radius:12px!important;background:rgba(255,255,255,.13)!important}
+
+.wrap{max-width:760px!important;padding:12px 14px 28px!important}
+
+/* Welcome: one clear orientation point */
+.welcome-card{background:linear-gradient(135deg,#e8f7f2,#f8fbfa)!important;border:1px solid #d7ebe4!important;border-radius:19px!important;box-shadow:var(--nf-shadow)!important;min-height:104px!important;padding:15px 17px!important;margin-bottom:11px!important}
+.welcome-card h2{font-size:20px!important;color:var(--nf-text)!important}
+.welcome-card p{font-size:11px!important;color:var(--nf-muted)!important;max-width:230px}
+.eyebrow{color:var(--nf-primary)!important}
+
+/* Stats stay secondary to the actual work */
+.stats-grid{gap:8px!important;margin-bottom:14px!important}
+.stat-card{border:1px solid var(--nf-line)!important;border-radius:15px!important;box-shadow:var(--nf-shadow)!important;padding:11px!important}
+.stat-card b{font-size:16px!important}
+.stat-icon{width:38px!important;height:38px!important;border-radius:11px!important}
+
+/* Main task chooser: stronger hierarchy */
+.quick-section{margin:0 0 15px!important}
+.section-head{margin:0 2px 8px!important}
+.section-head h3{font-size:15px!important;font-weight:800!important}
+.section-head span{font-size:9px!important;color:var(--nf-muted)!important;font-weight:600!important}
+.quick-grid{grid-template-columns:1fr 1fr!important;gap:9px!important}
+.quick-btn{min-height:86px!important;border:1px solid var(--nf-line)!important;border-radius:17px!important;background:#fff!important;box-shadow:var(--nf-shadow)!important;padding:11px!important;transition:transform .12s ease,box-shadow .12s ease}
+.quick-btn:active{transform:scale(.985);box-shadow:0 2px 9px rgba(18,65,53,.08)!important}
+.quick-btn b{font-size:12px!important;color:var(--nf-text)!important}
+.quick-btn small{font-size:9px!important;line-height:1.25;color:var(--nf-muted)!important}
+.quick-btn span{width:42px!important;height:42px!important;border-radius:13px!important}
+
+/* Make the most frequent action unmistakable */
+.quick-btn.q-green{grid-column:1/-1!important;min-height:92px!important;background:linear-gradient(135deg,#087f63,#09906f)!important;border-color:transparent!important;color:#fff!important;box-shadow:0 6px 18px rgba(8,127,99,.20)!important}
+.quick-btn.q-green b{color:#fff!important;font-size:13px!important}
+.quick-btn.q-green small{color:rgba(255,255,255,.82)!important}
+.quick-btn.q-green span{background:rgba(255,255,255,.16)!important;color:#fff!important}
+.quick-btn.q-blue span{background:var(--nf-blue-soft)!important;color:var(--nf-blue)!important}
+.quick-btn.q-indigo span{background:var(--nf-indigo-soft)!important;color:var(--nf-indigo)!important}
+.quick-btn.q-orange span{background:var(--nf-orange-soft)!important;color:var(--nf-orange)!important}
+
+/* Search is visually a separate utility, not another navigation choice */
+.search-card{background:#fff!important;border:1px solid var(--nf-line)!important;border-radius:17px!important;box-shadow:var(--nf-shadow)!important;padding:10px!important;margin-bottom:10px!important}
+.search-card:before{content:'Cari barang';display:block;font-size:10px;font-weight:800;color:var(--nf-muted);margin:1px 3px 7px}
+.search{gap:7px!important}
+.search input{height:47px!important;background:#f8faf9!important;border:1px solid #dfe9e5!important;border-radius:13px!important;font-size:15px!important}
+.search input::placeholder{color:#9aa6a2}
+.search input:focus{border-color:var(--nf-primary)!important;box-shadow:0 0 0 3px rgba(8,127,99,.10)!important}
+#scanBarcode{height:47px!important;min-width:52px!important;border-radius:13px!important;background:var(--nf-primary)!important;font-size:19px!important}
+#barcodeStatus{font-size:10px!important;color:var(--nf-muted)!important;margin:6px 3px 1px!important}
+
+/* Product results: prioritize name and price */
+.card{background:var(--nf-card)!important;border:1px solid var(--nf-line)!important;border-radius:17px!important;box-shadow:var(--nf-shadow)!important}
+.name{font-size:15px!important;color:var(--nf-text)!important}
+.code,.meta{font-size:10px!important;color:var(--nf-muted)!important}
+.price{font-size:16px!important;color:var(--nf-primary)!important}
+.badge{background:var(--nf-primary-soft)!important;color:var(--nf-primary)!important}
+
+/* Buttons and transaction areas */
+button{font-family:inherit!important;border-radius:11px!important;font-weight:700}
+.actions button{min-height:44px!important}
+.actions button:first-child{background:var(--nf-primary)!important}
+.qty button{background:var(--nf-primary)!important}
+.total{font-size:20px!important;color:var(--nf-text)!important}
+
+/* Reports/history remain clean and secondary */
+#laporanSection{border-color:var(--nf-line)!important;border-radius:17px!important;box-shadow:var(--nf-shadow)!important}
+#laporanSection h3{color:var(--nf-text)!important}
+#laporanSection .report-controls button{background:var(--nf-primary)!important}
+.history{border-top-color:var(--nf-line)!important}
+.history-item{border-bottom-color:var(--nf-line)!important}
+
+@media(max-width:430px){
+  .wrap{padding:11px 11px 24px!important}
+  .welcome-card{min-height:100px!important}
+  .quick-grid{gap:8px!important}
+  .quick-btn{min-height:82px!important}
+  .quick-btn.q-green{min-height:88px!important}
+  .quick-btn b{font-size:11.5px!important}
+  .quick-btn small{font-size:8.5px!important}
+  .stats-grid{margin-bottom:12px!important}
+}
