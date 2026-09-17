@@ -57,6 +57,25 @@ class MainActivity : Activity() {
         fun productCount(): Int = productDb.count()
 
         @JavascriptInterface
+        fun listProducts(query: String, limit: Int): String = productDb.search(query, limit.coerceIn(1, 200))
+
+        @JavascriptInterface
+        fun upsertProduct(json: String): String = try {
+            val row = JSONObject(json)
+            productDb.importProducts(JSONArray().put(row), "add_update")
+        } catch (e: Exception) {
+            JSONObject().put("ok", false).put("error", e.message ?: "Simpan produk gagal").toString()
+        }
+
+        @JavascriptInterface
+        fun deleteProduct(id: Long): String = try {
+            val deleted = productDb.deleteById(id)
+            JSONObject().put("ok", deleted).put("deleted", if (deleted) 1 else 0).toString()
+        } catch (e: Exception) {
+            JSONObject().put("ok", false).put("error", e.message ?: "Hapus produk gagal").toString()
+        }
+
+        @JavascriptInterface
         fun scanBarcode() {
             runOnUiThread {
                 val options = com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions.Builder()
@@ -186,11 +205,13 @@ class MainActivity : Activity() {
         }
         fun search(query: String, limit: Int): String {
             val db = readableDatabase; val q = query.trim()
-            val cursor = if (q.isEmpty()) db.rawQuery("SELECT code,barcode,name,jenis,brand,satuan,price,stok,rak FROM products ORDER BY name LIMIT ?", arrayOf(limit.toString()))
-            else { val like = "%${q.lowercase()}%"; db.rawQuery("SELECT code,barcode,name,jenis,brand,satuan,price,stok,rak FROM products WHERE lower(code) LIKE ? OR lower(barcode) LIKE ? OR lower(name) LIKE ? OR lower(jenis) LIKE ? OR lower(brand) LIKE ? ORDER BY CASE WHEN lower(code)=? THEN 0 WHEN lower(barcode)=? THEN 1 WHEN lower(name) LIKE ? THEN 2 ELSE 3 END, name LIMIT ?", arrayOf(like,like,like,like,like,q,q,like,limit.toString())) }
-            val out = JSONArray(); cursor.use { while (it.moveToNext()) out.put(JSONObject().apply { put("code",it.getString(0)?:("")); put("barcode",it.getString(1)?:("")); put("name",it.getString(2)?:("")); put("jenis",it.getString(3)?:("")); put("brand",it.getString(4)?:("")); put("satuan",it.getString(5)?:("")); put("price",it.getLong(6)); put("stok",it.getDouble(7)); put("rak",it.getString(8)?:("")) }) }
+            val cursor = if (q.isEmpty()) db.rawQuery("SELECT id,code,barcode,name,jenis,brand,satuan,price,stok,rak FROM products ORDER BY name LIMIT ?", arrayOf(limit.toString()))
+            else { val like = "%"+q.lowercase()+"%"; db.rawQuery("SELECT id,code,barcode,name,jenis,brand,satuan,price,stok,rak FROM products WHERE lower(code) LIKE ? OR lower(barcode) LIKE ? OR lower(name) LIKE ? OR lower(jenis) LIKE ? OR lower(brand) LIKE ? ORDER BY CASE WHEN lower(code)=? THEN 0 WHEN lower(barcode)=? THEN 1 WHEN lower(name) LIKE ? THEN 2 ELSE 3 END, name LIMIT ?", arrayOf(like,like,like,like,like,q,q,like,limit.toString())) }
+            val out = JSONArray(); cursor.use { while (it.moveToNext()) out.put(JSONObject().apply { put("id",it.getLong(0)); put("code",it.getString(1)?:("")); put("barcode",it.getString(2)?:("")); put("name",it.getString(3)?:("")); put("jenis",it.getString(4)?:("")); put("brand",it.getString(5)?:("")); put("satuan",it.getString(6)?:("")); put("price",it.getLong(7)); put("stok",it.getDouble(8)); put("rak",it.getString(9)?:("")) }) }
             return out.toString()
         }
+
+        fun deleteById(id: Long): Boolean = writableDatabase.delete("products", "id=?", arrayOf(id.toString())) > 0
     }
 
     companion object {
