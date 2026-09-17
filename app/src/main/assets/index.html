@@ -103,6 +103,20 @@ header{position:relative;top:auto;background:linear-gradient(135deg,#0b8a69,#079
 .card{border:1px solid var(--line);box-shadow:var(--shadow);border-radius:18px}.price{color:var(--g)}button{font-family:inherit}
 .dashboard,.dashboard-title{display:none!important}
 @media(max-width:430px){.wrap{padding:12px}.welcome-card{min-height:108px;padding:15px}.welcome-card h2{font-size:19px}.stats-grid{gap:8px}.stat-card{padding:11px}.quick-grid{gap:8px}.quick-btn{min-height:84px}}
+</style><style id="naufalPageShellV2">
+body{background:linear-gradient(180deg,#eef7f3 0%,#f7faf9 55%,#eef5f2 100%);padding-bottom:92px}
+.nf-page{display:none;animation:nfPageIn .18s ease}.nf-page.nf-active{display:block}
+.nf-page-head{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.nf-page-head h2{margin:0;font-size:20px;color:#17332b}.nf-page-head p{margin:3px 0 0;font-size:11px;color:#72817c}
+.nf-back{width:40px;height:40px;padding:0;border-radius:13px;background:#fff;color:#087f63;border:1px solid #dce9e5;font-size:20px}
+.nf-panel{background:rgba(255,255,255,.9);border:1px solid #dce9e5;border-radius:22px;padding:13px;box-shadow:0 10px 30px rgba(20,70,58,.08);margin-bottom:12px}
+.nf-page #nativeImportCard{display:none!important}
+.nf-page .bottom-nav{display:none}
+#nfHome .search-card,#nfHome>#results,#nfHome>.cart,#nfHome>#cartAnchor,#nfHome>#laporanSection{display:none!important}
+#nfPrice .search-card{margin-bottom:9px}.nf-price-hint{font-size:11px;color:#72817c;margin:7px 2px 10px}
+#nfTransaction .cart{margin-top:0}
+.nf-crud-host{min-height:160px}
+@keyframes nfPageIn{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(max-width:430px){.nf-page-head h2{font-size:19px}}
 </style></head>
 <body>
 <header>
@@ -427,7 +441,68 @@ renderResults(ITEMS.slice(0,30));renderCart();
       '</style></head><body><h1>APOTEK NAUFAL FARMA</h1><h3>Laporan Harian • '+esc(date)+'</h3>'+
       '<table><thead><tr><th>Nama Barang</th><th>Qty</th><th>Harga</th><th>Subtotal</th></tr></thead><tbody>'+body+'</tbody></table>'+
       '<table class="total"><tr><th>Total Item</th><td>'+qtotal+'</td></tr><tr><th>TOTAL PENJUALAN</th><td>'+sales+'</td></tr></table>'+
-      '</body></html>';
+      '<script id="naufalPageShellV2">
+(function(){
+  const wrap=document.querySelector(".wrap");
+  if(!wrap||document.getElementById("nfHome"))return;
+  const pages={};let current="home";
+  function page(name,title,sub){
+    const p=document.createElement("section");p.className="nf-page";p.id="nf"+name.charAt(0).toUpperCase()+name.slice(1);
+    p.innerHTML='<div class="nf-page-head"><button class="nf-back" type="button" onclick="openPage(\'home\')">‹</button><div><h2>'+title+'</h2><p>'+sub+'</p></div></div>';
+    wrap.appendChild(p);pages[name]=p;return p;
+  }
+  function move(id,p){const e=document.getElementById(id);if(e)p.appendChild(e);return e;}
+  window.openPage=function(name){
+    Object.values(pages).forEach(p=>p.classList.remove("nf-active"));
+    if(pages[name])pages[name].classList.add("nf-active");
+    current=name;window.scrollTo({top:0,behavior:"smooth"});
+    document.querySelectorAll("#bottomNavV15 button").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+    if(name==="price")setTimeout(()=>document.getElementById("q")?.focus(),180);
+    if(name==="items")window.nfCrudRefresh?.();
+    if(name==="report")document.getElementById("reportDate")?.dispatchEvent(new Event("change"));
+  };
+  window.focusSearch=function(scan){openPage("price");if(scan)setTimeout(()=>document.getElementById("scanBarcode")?.click(),350)};
+  window.focusCart=function(){openPage("transaction")};
+  window.focusReport=function(){openPage("report")};
+  window.focusSettings=function(){openPage("items")};
+
+  const home=page("home","Beranda","Ringkasan dan akses cepat");
+  const welcome=document.querySelector(".welcome-card"),stats=document.querySelector(".stats-grid"),quick=document.querySelector(".quick-section");
+  if(welcome)home.appendChild(welcome);if(stats)home.appendChild(stats);if(quick)home.appendChild(quick);
+
+  const price=page("price","Cek Harga","Cari nama, kode, atau barcode");
+  move("searchArea",price);move("results",price);
+  price.insertBefore(Object.assign(document.createElement("div"),{className:"nf-price-hint",textContent:"Cari produk dari database lokal. Tap item untuk memasukkannya ke transaksi."}),document.getElementById("results"));
+
+  const tx=page("transaction","Transaksi","Keranjang dan pembayaran");
+  move("cartAnchor",tx);move("cart",tx);
+
+  const report=page("report","Laporan","Penjualan harian");
+  move("laporanSection",report);
+
+  const items=page("items","Daftar Item","Master database • tambah, edit, hapus, import");
+  const host=document.createElement("div");host.id="nfItemsHost";host.className="nf-crud-host";items.appendChild(host);
+
+  // Add a clean navigation tile without exposing CRUD controls on the dashboard.
+  if(quick){
+    const grid=quick.querySelector(".quick-grid");
+    if(grid&&!grid.querySelector("[data-open-items]")){
+      const b=document.createElement("button");b.type="button";b.className="quick-btn q-indigo";b.setAttribute("data-open-items","1");
+      b.innerHTML="<span>▤</span><b>Daftar Item</b><small>Kelola database</small>";b.onclick=()=>openPage("items");grid.appendChild(b);
+    }
+  }
+
+  const bottom=document.getElementById("bottomNavV15");
+  if(bottom){
+    bottom.innerHTML='<button type="button" data-page="home" onclick="openPage(\'home\')"><span>⌂</span><b>Beranda</b></button><button type="button" data-page="price" onclick="openPage(\'price\')"><span>⌕</span><b>Cek Harga</b></button><button type="button" data-page="items" onclick="openPage(\'items\')"><span>▤</span><b>Daftar Item</b></button><button type="button" data-page="transaction" onclick="openPage(\'transaction\')"><span>🛒</span><b>Transaksi</b></button><button type="button" data-page="report" onclick="openPage(\'report\')"><span>▧</span><b>Laporan</b></button>';
+    bottom.classList.add("nf-nav-v2");
+  }
+  // Hide any legacy direct children that were not moved into a page.
+  Array.from(wrap.children).forEach(e=>{if(!e.classList.contains("nf-page"))e.style.display="none"});
+  try{if(window.Android){const n=Android.productCount(),el=document.querySelector(".stat-products b");if(el)el.textContent=n.toLocaleString("id-ID")}}catch(e){}
+  openPage("home");
+})();
+</script></body></html>';
 
     const filename="Laporan-"+date+".xls";
     const blob=new Blob([xls],{type:"application/vnd.ms-excel;charset=utf-8"});
