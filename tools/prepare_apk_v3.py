@@ -26,16 +26,80 @@ if 'window.Android.saveReport(filename, xls' not in s:
         s=s.replace(marker,nd+marker,1)
 
 # Remove generated feature modules before injecting current versions.
-for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1']:
+for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1','reportUiV2']:
     s=re.sub(r'<script id="'+script_id+r'">.*?</script>\s*', '', s, flags=re.S)
 
 modules=[
     ('barangKeluarV3',Path('tools/barang_keluar_v3.js')),
     ('daftarItemCrudV1',Path('tools/daftar_item_crud.js')),
+    ('reportUiV2',Path('tools/report_ui_v2.js')),
 ]
-pos=s.lower().rfind('</body>')
-if pos<0:
-    raise SystemExit('index.html: </body> not found')
+# Target the actual document closing tag, not the literal </body> inside
+# the Excel HTML string used by the report exporter. Older builds injected
+# the page shell into that string and leaked raw JavaScript into the UI.
+s=re.sub(r'<script id="naufalPageArchitectureV3">.*?</script>\\s*', '', s, flags=re.S)
+s=re.sub(r'<script id="naufalLiquidLayoutFix">.*?</script>\\s*', '', s, flags=re.S)
+pos_match=re.search(r'</body>\\s*</html>\\s*
+inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
+
+# Runtime DOM normalization prevents legacy inline text nodes from collapsing
+# labels in the compact mobile cards. It only wraps direct text nodes and does
+# not change feature logic, data, navigation, or transaction behavior.
+layout_fix='''
+<script id="naufalLiquidLayoutFix">
+(function(){
+  function wrapDirectText(root){
+    Array.from(root.childNodes).forEach(function(node){
+      if(node.nodeType===3 && node.textContent.trim()){
+        var span=document.createElement('span');
+        span.className='nf-auto-label';
+        span.textContent=node.textContent.trim();
+        root.replaceChild(span,node);
+      }
+    });
+  }
+  function fix(){
+    document.querySelectorAll('.stat-card').forEach(function(card){
+      var copy=card.querySelector(':scope > div:last-child');
+      if(copy && !copy.classList.contains('stat-icon')){
+        wrapDirectText(copy);
+        copy.classList.add('nf-stat-copy');
+      }
+    });
+    document.querySelectorAll('.quick-btn').forEach(function(btn){
+      wrapDirectText(btn);
+      btn.querySelectorAll('.nf-auto-label').forEach(function(el){
+        if(!el.classList.contains('nf-quick-label')) el.classList.add('nf-quick-label');
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fix);
+  else fix();
+  new MutationObserver(function(){fix()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+'''
+
+dom_end=inject+layout_fix
+s=s[:pos]+dom_end+s[pos:]
+
+# Keep exactly one application theme. Remove superseded UI theme layers before injecting V3.
+for style_id in ['sampleUIUXV15','referenceUIUX','naufalPharmacyThemeV2','naufalLiquidThemeV3']:
+    s=re.sub(r'<style id="'+style_id+r'">.*?</style>\s*', '', s, flags=re.S)
+
+theme=Path('tools/ui_theme_v2.css').read_text(encoding='utf-8')
+style_tag='<style id="naufalLiquidThemeV3">\n'+theme+'\n</style>\n'
+head_pos=s.lower().find('</head>')
+if head_pos<0:
+    raise SystemExit('index.html: </head> not found')
+s=s[:head_pos]+style_tag+s[head_pos:]
+
+p.write_text(s,encoding='utf-8')
+print('Prepared APK HTML with consolidated Liquid Glass UI V3 and mobile layout normalization')
+, s, flags=re.I)
+if not pos_match:
+    raise SystemExit('index.html: actual </body></html> not found')
+pos=pos_match.start()
 inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
 
 # Runtime DOM normalization prevents legacy inline text nodes from collapsing
