@@ -1,0 +1,57 @@
+name: Convert PostgreSQL Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      asset_url:
+        description: 'URL aset GitHub Release untuk 170926.i4bu'
+        required: true
+        type: string
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download PostgreSQL dump
+        env:
+          ASSET_URL: ${{ inputs.asset_url }}
+        run: |
+          mkdir -p input
+          curl -L --fail --retry 3 --retry-delay 2 "$ASSET_URL" -o input/170926.i4bu
+          file input/170926.i4bu
+          ls -lh input/170926.i4bu
+
+      - name: Install PostgreSQL client/server
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql postgresql-client
+
+      - name: Start PostgreSQL
+        run: |
+          sudo systemctl start postgresql
+          sudo -u postgres createdb naufal_restore
+
+      - name: Convert dump to app database exports
+        env:
+          DUMP_FILE: input/170926.i4bu
+          OUT_DIR: converted
+          PGDATABASE: naufal_restore
+          PGUSER: postgres
+        run: python3 tools/convert_i4bu.py
+
+      - name: Package converted database
+        run: |
+          zip -r Apotek-Naufal-Farma-Database-Converted.zip converted
+          ls -lh Apotek-Naufal-Farma-Database-Converted.zip
+
+      - name: Upload converted database
+        uses: actions/upload-artifact@v4
+        with:
+          name: Apotek-Naufal-Farma-Database-Converted
+          path: Apotek-Naufal-Farma-Database-Converted.zip
+          retention-days: 14
