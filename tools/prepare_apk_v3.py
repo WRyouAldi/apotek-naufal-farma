@@ -39,5 +39,14 @@ if pos<0:
 inject=''.join('<script id="'+sid+'">\n'+path.read_text(encoding='utf-8')+'\n</script>\n' for sid,path in modules)
 s=s[:pos]+inject+s[pos:]
 
+# Apply the pharmacy-focused mobile theme at build time so the source UI/features remain intact.
+theme=Path('tools/ui_theme_v2.css').read_text(encoding='utf-8')
+style_tag='<style id="naufalPharmacyThemeV2">\n'+theme+'\n</style>\n'
+s=re.sub(r'<style id="naufalPharmacyThemeV2">.*?</style>\s*', '', s, flags=re.S)
+head_pos=s.lower().find('</head>')
+if head_pos<0:
+    raise SystemExit('index.html: </head> not found')
+s=s[:head_pos]+style_tag+s[head_pos:]
+
 p.write_text(s,encoding='utf-8')
-print('Prepared APK HTML with Harga Beli + Barang Keluar V3 + Daftar Item CRUD')
+print('Prepared APK HTML with Harga Beli + Barang Keluar V3 + Daftar Item CRUD + Pharmacy UI Theme V2')
