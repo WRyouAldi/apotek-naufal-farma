@@ -678,8 +678,35 @@ function focusSettings(){const el=document.getElementById("backupBtn");if(el){el
     if(typeof window.nfGo==="function") window.nfGo("price");
 
     const input=document.getElementById("q");
-    if(input) input.value=code;
+    if(input){
+      input.value=code;
+      try{ input.dispatchEvent(new Event("input",{bubbles:true})); }catch(e){}
+    }
 
+    // Barcode scanner returns the product CODE in this database as well as
+    // a conventional barcode. Resolve the exact item locally first so the
+    // result does not depend on SQLite/WebView timing.
+    let local=[];
+    try{
+      if(Array.isArray(window.ITEMS)){
+        local=window.ITEMS.filter(x=>
+          String(x.code||"").trim()===code ||
+          String(x.barcode||"").trim()===code
+        );
+      }
+    }catch(e){ local=[]; }
+
+    if(local.length){
+      window.__naufalResults=local;
+      if(typeof window.renderResults==="function"){
+        try{ window.renderResults(local); }catch(e){}
+      }
+      setStatus("Barcode terbaca: "+code+" • "+local[0].name);
+      setTimeout(()=>document.getElementById("q")?.focus(),80);
+      return true;
+    }
+
+    // Fall back to the persistent SQLite database for imported/updated data.
     let rows=[];
     try{
       if(window.Android && typeof window.Android.searchProducts==="function"){
@@ -691,31 +718,23 @@ function focusSettings(){const el=document.getElementById("backupBtn");if(el){el
       String(x.barcode||"").trim()===code ||
       String(x.code||"").trim()===code
     );
-    const list=exact.length?exact:rows;
-    window.__naufalResults=list;
 
-    if(typeof window.renderResults==="function"){
-      try{ window.renderResults(list); }catch(e){}
-    }
-
-    if(list.length){
-      setStatus("Barcode terbaca: "+code+" • "+list[0].name);
+    if(exact.length){
+      window.__naufalResults=exact;
+      if(typeof window.renderResults==="function"){
+        try{ window.renderResults(exact); }catch(e){}
+      }
+      setStatus("Barcode terbaca: "+code+" • "+exact[0].name);
+      setTimeout(()=>document.getElementById("q")?.focus(),80);
       return true;
     }
 
-    if(Array.isArray(window.ITEMS)){
-      const fallback=window.ITEMS.filter(x=>
-        String(x.code||"").trim()===code ||
-        String(x.barcode||"").trim()===code
-      );
-      if(fallback.length){
-        window.__naufalResults=fallback;
-        if(typeof window.renderResults==="function") window.renderResults(fallback);
-        setStatus("Barcode terbaca: "+code+" • "+fallback[0].name);
-        return true;
-      }
+    // Never leave the previous search result on screen when a barcode is
+    // not found; show an explicit empty state instead.
+    window.__naufalResults=[];
+    if(typeof window.renderResults==="function"){
+      try{ window.renderResults([]); }catch(e){}
     }
-
     setStatus("Barcode terbaca: "+code+" • item tidak ditemukan di database.");
     return false;
   }
@@ -724,7 +743,6 @@ function focusSettings(){const el=document.getElementById("backupBtn");if(el){el
     code=String(code||"").trim();
     if(!code) return;
     showNativeProduct(code);
-    window.scrollTo({top:0,behavior:"smooth"});
   };
 
   const btn=document.getElementById("scanBarcode");
