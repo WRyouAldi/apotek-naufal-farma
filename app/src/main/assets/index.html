@@ -669,13 +669,17 @@ function focusSettings(){const el=document.getElementById("backupBtn");if(el){el
 <script id="nativeBarcodeBridge">
 (function(){
   const btn=document.getElementById("scanBarcode");
-  const input=document.getElementById("q");
-  const status=document.getElementById("barcodeStatus");
-  function setStatus(t){ if(status) status.textContent=t; }
+  function setStatus(t){ const el=document.getElementById("barcodeStatus"); if(el) el.textContent=t; }
   window.onNativeBarcodeScanned=function(code){
     code=String(code||"").trim();
     if(!code) return;
-    if(input){ input.value=code; input.dispatchEvent(new Event("input",{bubbles:true})); }
+    // Ambil input terbaru setiap kali callback. PERSISTENT_DB_JS dapat
+    // mengganti #q saat mengaktifkan pencarian native SQLite.
+    const input=document.getElementById("q");
+    if(input){
+      input.value=code;
+      input.dispatchEvent(new Event("input",{bubbles:true}));
+    }
     setStatus("Barcode terbaca: "+code);
     window.scrollTo({top:0,behavior:"smooth"});
   };
