@@ -33,6 +33,7 @@ modules=[
     ('barangKeluarV3',Path('tools/barang_keluar_v3.js')),
     ('daftarItemCrudV1',Path('tools/daftar_item_crud.js')),
     ('reportUiV2',Path('tools/report_ui_v2.js')),
+    ('naufalPageArchitectureV4',Path('tools/page_architecture_v4.js')),
 ]
 # Remove the legacy page-shell injection that was accidentally embedded in the
 # Excel export HTML string by an older build.
