@@ -26,14 +26,14 @@ if 'window.Android.saveReport(filename, xls' not in s:
         s=s.replace(marker,nd+marker,1)
 
 # Remove generated feature modules before injecting current versions.
-for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1','reportUiV2']:
+for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1','reportUiV2','naufalPageArchitectureV4','naufalPageArchitectureV5']:
     s=re.sub(r'<script id="'+script_id+r'">.*?</script>\s*', '', s, flags=re.S)
 
 modules=[
     ('barangKeluarV3',Path('tools/barang_keluar_v3.js')),
     ('daftarItemCrudV1',Path('tools/daftar_item_crud.js')),
     ('reportUiV2',Path('tools/report_ui_v2.js')),
-    ('naufalPageArchitectureV4',Path('tools/page_architecture_v4.js')),
+    ('naufalPageArchitectureV5',Path('tools/page_architecture_v5.js')),
 ]
 # Remove the legacy page-shell injection that was accidentally embedded in the
 # Excel export HTML string by an older build.
