@@ -668,28 +668,75 @@ function focusSettings(){const el=document.getElementById("backupBtn");if(el){el
 <!-- Native Android barcode bridge. In an APK, Android.scanBarcode() opens the native scanner. In a normal browser, it falls back to manual search. -->
 <script id="nativeBarcodeBridge">
 (function(){
-  const btn=document.getElementById("scanBarcode");
-  function setStatus(t){ const el=document.getElementById("barcodeStatus"); if(el) el.textContent=t; }
+  function setStatus(t){
+    const el=document.getElementById("barcodeStatus");
+    if(el) el.textContent=t;
+  }
+  function showNativeProduct(code){
+    code=String(code||"").trim();
+    if(!code) return false;
+    if(typeof window.nfGo==="function") window.nfGo("price");
+
+    const input=document.getElementById("q");
+    if(input) input.value=code;
+
+    let rows=[];
+    try{
+      if(window.Android && typeof window.Android.searchProducts==="function"){
+        rows=JSON.parse(window.Android.searchProducts(code,20)||"[]");
+      }
+    }catch(e){ rows=[]; }
+
+    const exact=rows.filter(x=>
+      String(x.barcode||"").trim()===code ||
+      String(x.code||"").trim()===code
+    );
+    const list=exact.length?exact:rows;
+    window.__naufalResults=list;
+
+    if(typeof window.renderResults==="function"){
+      try{ window.renderResults(list); }catch(e){}
+    }
+
+    if(list.length){
+      setStatus("Barcode terbaca: "+code+" • "+list[0].name);
+      return true;
+    }
+
+    if(Array.isArray(window.ITEMS)){
+      const fallback=window.ITEMS.filter(x=>
+        String(x.code||"").trim()===code ||
+        String(x.barcode||"").trim()===code
+      );
+      if(fallback.length){
+        window.__naufalResults=fallback;
+        if(typeof window.renderResults==="function") window.renderResults(fallback);
+        setStatus("Barcode terbaca: "+code+" • "+fallback[0].name);
+        return true;
+      }
+    }
+
+    setStatus("Barcode terbaca: "+code+" • item tidak ditemukan di database.");
+    return false;
+  }
+
   window.onNativeBarcodeScanned=function(code){
     code=String(code||"").trim();
     if(!code) return;
-    // Ambil input terbaru setiap kali callback. PERSISTENT_DB_JS dapat
-    // mengganti #q saat mengaktifkan pencarian native SQLite.
-    const input=document.getElementById("q");
-    if(input){
-      input.value=code;
-      input.dispatchEvent(new Event("input",{bubbles:true}));
-    }
-    setStatus("Barcode terbaca: "+code);
+    showNativeProduct(code);
     window.scrollTo({top:0,behavior:"smooth"});
   };
+
+  const btn=document.getElementById("scanBarcode");
   if(btn){
     btn.addEventListener("click",function(){
-      if(window.Android && typeof window.Android.scanBarcode === "function") {
+      if(window.Android && typeof window.Android.scanBarcode==="function"){
         setStatus("Membuka scanner...");
-        try{ window.Android.scanBarcode(); }catch(e){ setStatus("Scanner Android gagal dibuka."); }
-      } else {
+        try{ window.Android.scanBarcode(); }
+        catch(e){ setStatus("Scanner Android gagal dibuka."); }
+      }else{
         setStatus("Mode web: APK native scanner belum tersedia. Masukkan barcode secara manual.");
+        const input=document.getElementById("q");
         if(input) input.focus();
       }
     });
