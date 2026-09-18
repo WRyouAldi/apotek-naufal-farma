@@ -9,6 +9,11 @@ costs=json.loads(zlib.decompress(base64.b64decode(encoded,validate=True)).decode
 m=re.search(r'const ITEMS=(\[.*?\]);',s,re.S)
 if m:
     items=json.loads(m.group(1))
+    # Emit a standalone native seed file so Android can initialize SQLite
+    # deterministically without depending on WebView/JS bridge timing.
+    seed_path=Path('app/src/main/assets/products_seed.json')
+    seed_path.write_text(json.dumps(items,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+    print(f'Native seed written: {len(items)} products')
     for i,x in enumerate(items):
         x['cost']=int(costs[i] or 0) if i<len(costs) else 0
     s=s[:m.start()]+'const ITEMS='+json.dumps(items,ensure_ascii=False,separators=(',',':'))+';'+s[m.end():]
