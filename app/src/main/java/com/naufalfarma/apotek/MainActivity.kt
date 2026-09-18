@@ -31,6 +31,13 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         productDb = ProductDb(this)
+        // Seed the persistent SQLite database natively from the bundled master.
+        // This avoids relying on WebView bridge timing during startup.
+        try {
+            productDb.seedFromAsset(assets.open("products_seed.json"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Database produk belum berhasil diinisialisasi: ${e.message}", Toast.LENGTH_LONG).show()
+        }
         webView = findViewById(R.id.webView)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
@@ -166,6 +173,24 @@ class MainActivity : Activity() {
         }
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
         fun count(): Int = readableDatabase.rawQuery("SELECT COUNT(*) FROM products", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
+
+        fun seedFromAsset(input: java.io.InputStream) {
+            input.use { stream ->
+                val json = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                val rows = JSONArray(json)
+                if (count() < rows.length()) {
+                    writableDatabase.beginTransaction()
+                    try {
+                        for (i in 0 until rows.length()) {
+                            insertOrUpdate(writableDatabase, rows.getJSONObject(i), "add_update")
+                        }
+                        writableDatabase.setTransactionSuccessful()
+                    } finally {
+                        writableDatabase.endTransaction()
+                    }
+                }
+            }
+        }
 
         fun seedChunk(rows: JSONArray): String {
             val db = writableDatabase; db.beginTransaction(); var inserted = 0
