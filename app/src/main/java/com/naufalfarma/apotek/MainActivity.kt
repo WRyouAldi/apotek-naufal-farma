@@ -166,30 +166,79 @@ class MainActivity : Activity() {
         private fun toast(message: String) = runOnUiThread { Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show() }
     }
 
-    class ProductDb(context: android.content.Context) : SQLiteOpenHelper(context, "naufal_products.db", null, 1) {
+    class ProductDb(context: android.content.Context) : SQLiteOpenHelper(context, "naufal_products.db", null, 2) {
         override fun onCreate(db: SQLiteDatabase) {
-            db.execSQL("CREATE TABLE products (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, barcode TEXT, name TEXT NOT NULL, jenis TEXT, brand TEXT, satuan TEXT, price INTEGER DEFAULT 0, stok REAL DEFAULT 0, rak TEXT, updated_at INTEGER)")
-            db.execSQL("CREATE INDEX idx_products_code ON products(code)"); db.execSQL("CREATE INDEX idx_products_barcode ON products(barcode)"); db.execSQL("CREATE INDEX idx_products_name ON products(name)")
+            createSchema(db)
         }
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+            createSchema(db)
+        }
+        private fun createSchema(db: SQLiteDatabase) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, barcode TEXT, name TEXT NOT NULL, jenis TEXT, brand TEXT, satuan TEXT, purchase_price INTEGER DEFAULT 0, price INTEGER DEFAULT 0, stok REAL DEFAULT 0, min_stok REAL DEFAULT 0, rak TEXT, supplier TEXT, keterangan TEXT, status TEXT, updated_at INTEGER)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS product_units (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER NOT NULL, unit TEXT, conversion REAL DEFAULT 1, barcode TEXT, purchase_price INTEGER DEFAULT 0, updated_at INTEGER, UNIQUE(product_id, unit, barcode), FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS product_prices (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER NOT NULL, unit TEXT, level INTEGER DEFAULT 1, quantity_until REAL DEFAULT 0, percentage REAL DEFAULT 0, price INTEGER DEFAULT 0, updated_at INTEGER, UNIQUE(product_id, unit, level, quantity_until), FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS stock (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER NOT NULL, office TEXT DEFAULT 'default', quantity REAL DEFAULT 0, updated_at INTEGER, UNIQUE(product_id, office), FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS db_meta (key TEXT PRIMARY KEY, value TEXT)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_products_code ON products(code)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_products_name ON products(name)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_units_barcode ON product_units(barcode)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_prices_product ON product_prices(product_id)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_stock_product ON stock(product_id)")
+            // Migration from schema v1.
+            val cols = db.rawQuery("PRAGMA table_info(products)", null).use { c -> buildSet { while(c.moveToNext()) add(c.getString(1)) } }
+            if (!cols.contains("purchase_price")) db.execSQL("ALTER TABLE products ADD COLUMN purchase_price INTEGER DEFAULT 0")
+            if (!cols.contains("min_stok")) db.execSQL("ALTER TABLE products ADD COLUMN min_stok REAL DEFAULT 0")
+            if (!cols.contains("supplier")) db.execSQL("ALTER TABLE products ADD COLUMN supplier TEXT")
+            if (!cols.contains("keterangan")) db.execSQL("ALTER TABLE products ADD COLUMN keterangan TEXT")
+            if (!cols.contains("status")) db.execSQL("ALTER TABLE products ADD COLUMN status TEXT")
+        }
         fun count(): Int = readableDatabase.rawQuery("SELECT COUNT(*) FROM products", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
 
         fun seedFromAsset(input: java.io.InputStream) {
             input.use { stream ->
                 val json = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
                 val rows = JSONArray(json)
-                if (count() < rows.length()) {
-                    writableDatabase.beginTransaction()
-                    try {
-                        for (i in 0 until rows.length()) {
-                            insertOrUpdate(writableDatabase, rows.getJSONObject(i), "add_update")
-                        }
-                        writableDatabase.setTransactionSuccessful()
-                    } finally {
-                        writableDatabase.endTransaction()
+                val db = writableDatabase
+                val seedVersion = "2026-09-18-db-v2"
+                val current = db.rawQuery("SELECT value FROM db_meta WHERE key='seed_version' LIMIT 1", null).use { if (it.moveToFirst()) it.getString(0) else "" }
+                if (current == seedVersion && count() >= rows.length()) return
+                db.beginTransaction()
+                try {
+                    for (i in 0 until rows.length()) {
+                        val o = rows.getJSONObject(i)
+                        val id = upsertNormalized(db, o)
+                        syncNormalizedChildren(db, id, o)
                     }
+                    db.delete("db_meta", "key=?", arrayOf("seed_version"))
+                    db.execSQL("INSERT INTO db_meta(key,value) VALUES('seed_version',?)", arrayOf(seedVersion))
+                    db.setTransactionSuccessful()
+                } finally {
+                    db.endTransaction()
                 }
             }
+        }
+
+        private fun upsertNormalized(db: SQLiteDatabase, o: JSONObject): Long {
+            val code=o.optString("code").trim(); val barcode=o.optString("barcode").trim(); val name=o.optString("name").trim().ifEmpty{"(Tanpa nama)"}
+            val existing=findId(db,code,barcode,name)
+            val values=values(o)
+            if(existing!=null){db.update("products",values,"id=?",arrayOf(existing.toString()));return existing}
+            return db.insertOrThrow("products",null,values)
+        }
+
+        private fun syncNormalizedChildren(db: SQLiteDatabase, productId: Long, o: JSONObject) {
+            val unit=o.optString("satuan").trim()
+            val barcode=o.optString("barcode").trim()
+            val cost=o.optLong("cost",o.optLong("purchase_price",0L))
+            val price=o.optLong("price",0L)
+            val now=System.currentTimeMillis()
+            db.delete("product_units","product_id=?",arrayOf(productId.toString()))
+            db.delete("product_prices","product_id=?",arrayOf(productId.toString()))
+            db.delete("stock","product_id=?",arrayOf(productId.toString()))
+            db.execSQL("INSERT INTO product_units(product_id,unit,conversion,barcode,purchase_price,updated_at) VALUES(?,?,?,?,?,?)",arrayOf(productId,unit.ifEmpty{"PCS"},1.0,barcode,cost,now))
+            db.execSQL("INSERT INTO product_prices(product_id,unit,level,quantity_until,percentage,price,updated_at) VALUES(?,?,?,?,?,?,?)",arrayOf(productId,unit.ifEmpty{"PCS"},1,0.0,0.0,price,now))
+            db.execSQL("INSERT INTO stock(product_id,office,quantity,updated_at) VALUES(?,?,?,?)",arrayOf(productId,"default",o.optDouble("stok",0.0),now))
         }
 
         fun seedChunk(rows: JSONArray): String {
@@ -226,7 +275,21 @@ class MainActivity : Activity() {
             return null
         }
         private fun values(o: JSONObject): ContentValues = ContentValues().apply {
-            put("code", o.optString("code").trim()); put("barcode", o.optString("barcode").trim()); put("name", o.optString("name").trim().ifEmpty { "(Tanpa nama)" }); put("jenis", o.optString("jenis").trim()); put("brand", o.optString("brand").trim()); put("satuan", o.optString("satuan").trim()); put("price", o.optLong("price", 0L)); put("stok", o.optDouble("stok", 0.0)); put("rak", o.optString("rak").trim()); put("updated_at", System.currentTimeMillis())
+            put("code", o.optString("code").trim())
+            put("barcode", o.optString("barcode").trim())
+            put("name", o.optString("name").trim().ifEmpty { "(Tanpa nama)" })
+            put("jenis", o.optString("jenis").trim())
+            put("brand", o.optString("brand").trim())
+            put("satuan", o.optString("satuan").trim())
+            put("purchase_price", o.optLong("cost", o.optLong("purchase_price", 0L)))
+            put("price", o.optLong("price", 0L))
+            put("stok", o.optDouble("stok", 0.0))
+            put("min_stok", o.optDouble("min_stok", 0.0))
+            put("rak", o.optString("rak").trim())
+            put("supplier", o.optString("supplier").trim())
+            put("keterangan", o.optString("keterangan").trim())
+            put("status", o.optString("status").trim())
+            put("updated_at", System.currentTimeMillis())
         }
         fun search(query: String, limit: Int): String {
             val db = readableDatabase; val q = query.trim()
