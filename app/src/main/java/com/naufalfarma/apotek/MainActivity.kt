@@ -167,6 +167,11 @@ class MainActivity : Activity() {
     }
 
     class ProductDb(context: android.content.Context) : SQLiteOpenHelper(context, "naufal_products.db", null, 2) {
+        override fun onConfigure(db: SQLiteDatabase) {
+            super.onConfigure(db)
+            db.setForeignKeyConstraintsEnabled(true)
+            db.enableWriteAheadLogging()
+        }
         override fun onCreate(db: SQLiteDatabase) {
             createSchema(db)
         }
@@ -202,7 +207,10 @@ class MainActivity : Activity() {
                 val db = writableDatabase
                 val seedVersion = "2026-09-18-db-v2"
                 val current = db.rawQuery("SELECT value FROM db_meta WHERE key='seed_version' LIMIT 1", null).use { if (it.moveToFirst()) it.getString(0) else "" }
-                if (current == seedVersion && count() >= rows.length()) return
+                val unitCount = db.rawQuery("SELECT COUNT(*) FROM product_units", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
+                val priceCount = db.rawQuery("SELECT COUNT(*) FROM product_prices", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
+                val stockCount = db.rawQuery("SELECT COUNT(*) FROM stock", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
+                if (current == seedVersion && count() >= rows.length() && unitCount >= rows.length() && priceCount >= rows.length() && stockCount >= rows.length()) return
                 db.beginTransaction()
                 try {
                     for (i in 0 until rows.length()) {
@@ -254,7 +262,14 @@ class MainActivity : Activity() {
             try {
                 if (normalizedMode == "replace") db.delete("products", null, null)
                 val operationMode = if (normalizedMode == "replace") "add" else normalizedMode
-                for (i in 0 until rows.length()) when (insertOrUpdate(db, rows.getJSONObject(i), operationMode)) { 1 -> added++; 2 -> updated++; else -> skipped++ }
+                for (i in 0 until rows.length()) {
+                    val row = rows.getJSONObject(i)
+                    val result = insertOrUpdate(db, row, operationMode)
+                    if (result == 1 || result == 2) {
+                        findId(db, row.optString("code").trim(), row.optString("barcode").trim(), row.optString("name").trim())?.let { syncNormalizedChildren(db, it, row) }
+                    }
+                    when (result) { 1 -> added++; 2 -> updated++; else -> skipped++ }
+                }
                 db.setTransactionSuccessful()
             } finally { db.endTransaction() }
             return JSONObject().put("ok", true).put("added", added).put("updated", updated).put("skipped", skipped).put("total", count()).toString()
@@ -264,9 +279,14 @@ class MainActivity : Activity() {
             val code = o.optString("code").trim(); val barcode = o.optString("barcode").trim(); val name = o.optString("name").trim()
             if (name.isEmpty() && code.isEmpty() && barcode.isEmpty()) return 0
             val existing = findId(db, code, barcode, name)
-            if (existing != null) { if (mode == "add") return 0; db.update("products", values(o), "id=?", arrayOf(existing.toString())); return 2 }
+            if (existing != null) {
+                if (mode == "add") return 0
+                db.update("products", values(o), "id=?", arrayOf(existing.toString()))
+                return 2
+            }
             if (mode == "update") return 0
-            db.insertOrThrow("products", null, values(o)); return 1
+            db.insertOrThrow("products", null, values(o))
+            return 1
         }
         private fun findId(db: SQLiteDatabase, code: String, barcode: String, name: String): Long? {
             if (code.isNotEmpty()) db.rawQuery("SELECT id FROM products WHERE code=? ORDER BY id LIMIT 1", arrayOf(code)).use { if (it.moveToFirst()) return it.getLong(0) }
