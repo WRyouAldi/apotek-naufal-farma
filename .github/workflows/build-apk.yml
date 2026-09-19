@@ -24,6 +24,17 @@ jobs:
         run: cat tools/harga_beli_parts/[0-9][0-9] > tools/harga_beli.b64
       - name: Prepare APK HTML
         run: python3 tools/prepare_apk_v3.py
+      - name: Validate generated database seed
+        run: |
+          python3 - <<'PY'
+          import json
+          p='app/src/main/assets/products_seed.json'
+          rows=json.load(open(p,encoding='utf-8'))
+          costs=sum(1 for x in rows if int(x.get('cost',0) or 0)>0)
+          assert len(rows)==4348, f'Expected 4348 products, got {len(rows)}'
+          assert costs>=4000, f'Expected Harga Beli for >=4000 products, got {costs}'
+          print(f'Database seed OK: {len(rows)} products; Harga Beli: {costs}')
+          PY
       - name: Build debug APK
         run: gradle :app:assembleDebug --no-daemon
       - name: Prepare downloadable APK
