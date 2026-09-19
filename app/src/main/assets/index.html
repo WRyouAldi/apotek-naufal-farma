@@ -460,7 +460,6 @@ renderResults(ITEMS.slice(0,30));renderCart();
   async function downloadReport(){
     const list=filtered(), date=dateEl.value;
     if(!list.length){alert("Tidak ada transaksi pada tanggal "+date+".");return;}
-
     let sales=0,qtotal=0,body="";
     list.forEach(tx=>{
       sales+=total(tx);
@@ -469,126 +468,27 @@ renderResults(ITEMS.slice(0,30));renderCart();
         body+='<tr><td>'+esc(name(i))+'</td><td class="r">'+qty(i)+'</td><td class="r">'+price(i)+'</td><td class="r">'+subtotal(i)+'</td></tr>';
       });
     });
-
     const xls='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'+
       'body{font-family:Arial;font-size:10pt}h1{font-size:16pt;margin:0}h3{font-size:10pt;font-weight:normal;margin:2px 0 10px}'+
-      'table{border-collapse:collapse;width:100%}th,td{border:1px solid #aaa;padding:5px}th{background:#eee}'+
+      'table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #aaa;padding:5px;word-break:break-word}th{background:#eee}'+
       '.r{text-align:right;mso-number-format:"#,##0"}.total{width:300px;margin-top:12px}.total th{text-align:left}.total td{text-align:right;font-weight:bold}'+
       '</style></head><body><h1>APOTEK NAUFAL FARMA</h1><h3>Laporan Harian • '+esc(date)+'</h3>'+
       '<table><thead><tr><th>Nama Barang</th><th>Qty</th><th>Harga</th><th>Subtotal</th></tr></thead><tbody>'+body+'</tbody></table>'+
       '<table class="total"><tr><th>Total Item</th><td>'+qtotal+'</td></tr><tr><th>TOTAL PENJUALAN</th><td>'+sales+'</td></tr></table>'+
-      '<script id="naufalPageArchitectureV3">
-(function(){
-  'use strict';
-  const wrap=document.querySelector('.wrap');
-  if(!wrap||document.getElementById('nfHome'))return;
-  const pages={};
-  let current='home';
-  function makePage(name,title,sub){
-    const p=document.createElement('section');
-    p.id='nf'+name.charAt(0).toUpperCase()+name.slice(1);
-    p.className='nf-page';
-    p.innerHTML='<div class="nf-page-head"><button class="nf-back" type="button" data-back>‹</button><div><h2>'+title+'</h2><p>'+sub+'</p></div></div>';
-    p.querySelector('[data-back]').onclick=()=>openPage('home');
-    wrap.appendChild(p);pages[name]=p;return p;
-  }
-  function move(id,parent){
-    const el=document.getElementById(id);
-    if(el)parent.appendChild(el);
-    return el;
-  }
-  function hideLegacy(){
-    Array.from(wrap.children).forEach(el=>{
-      if(!el.classList.contains('nf-page'))el.style.display='none';
-    });
-  }
-  window.openPage=function(name){
-    if(!pages[name])name='home';
-    Object.values(pages).forEach(p=>p.classList.remove('nf-active'));
-    pages[name].classList.add('nf-active');
-    current=name;
-    window.scrollTo({top:0,behavior:'smooth'});
-    document.querySelectorAll('#bottomNavV15 button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
-    if(name==='price')setTimeout(()=>document.getElementById('q')?.focus(),180);
-    if(name==='items')window.nfCrudRefresh?.();
-    if(name==='report')document.getElementById('reportDate')?.dispatchEvent(new Event('change'));
-  };
-  window.focusSearch=function(scan){openPage('price');if(scan)setTimeout(()=>document.getElementById('scanBarcode')?.click(),300)};
-  window.focusCart=function(){openPage('transaction')};
-  window.focusReport=function(){openPage('report')};
-  window.focusOut=function(){openPage('out')};
-  window.focusItems=function(){openPage('items')};
-
-  const home=makePage('home','Beranda','Ringkasan dan akses cepat');
-  const welcome=document.querySelector('.welcome-card'),stats=document.querySelector('.stats-grid'),quick=document.querySelector('.quick-section');
-  if(welcome)home.appendChild(welcome);
-  if(stats)home.appendChild(stats);
-  if(quick){
-    home.appendChild(quick);
-    const grid=quick.querySelector('.quick-grid');
-    if(grid){
-      grid.innerHTML=
-        '<button type="button" class="quick-btn q-green" onclick="focusSearch()"><span>⌕</span><b>Cek Harga</b><small>Cari nama, kode, barcode</small></button>'+
-        '<button type="button" class="quick-btn q-blue" onclick="focusSearch(true)"><span>▥</span><b>Scan Barcode</b><small>Cari dengan kamera</small></button>'+
-        '<button type="button" class="quick-btn q-indigo" onclick="focusCart()"><span>🛒</span><b>Transaksi</b><small>Keranjang & pembayaran</small></button>'+
-        '<button type="button" class="quick-btn q-orange" onclick="focusOut()"><span>↗</span><b>Barang Keluar</b><small>Pencatatan stok keluar</small></button>';
+      '</body></html>';
+    if(window.Android && typeof window.Android.saveReport==="function"){
+      window.Android.saveReport("Laporan-"+date+".xls",xls,"application/vnd.ms-excel");
+      return;
     }
-    const link=document.createElement('div');
-    link.className='nf-more-link';
-    link.innerHTML='<span>Kelola database produk</span><button type="button">Daftar Item →</button>';
-    link.querySelector('button').onclick=()=>openPage('items');
-    quick.appendChild(link);
-  }
-
-  const price=makePage('price','Cek Harga','Pencarian cepat produk');
-  move('searchArea',price);move('results',price);
-  const ph=document.createElement('div');ph.className='nf-page-intro';ph.textContent='Harga jual, satuan, dan stok dibaca dari database lokal.';price.insertBefore(ph,document.getElementById('searchArea'));
-
-  const tx=makePage('transaction','Transaksi','Keranjang dan pembayaran');
-  move('cartAnchor',tx);move('cart',tx);
-
-  const out=makePage('out','Barang Keluar','Pencatatan barang keluar • Harga Beli');
-  const report=makePage('report','Laporan','Ringkasan dan laporan penjualan');
-  move('laporanSection',report);
-
-  const items=makePage('items','Daftar Item','Master database produk • CRUD dan import');
-  const host=document.createElement('div');host.id='nfItemsHost';host.className='nf-crud-host';items.appendChild(host);
-
-  // barang_keluar_v3.js is injected after this shell by the APK preparation script.
-  // Move its dedicated section as soon as it is created; it never lives on Beranda.
-  const relocate=new MutationObserver(function(){
-    const el=document.getElementById('barangKeluarSection');
-    if(el&&!out.contains(el)){out.appendChild(el);hideLegacy();relocate.disconnect();}
-  });
-  relocate.observe(wrap,{childList:true,subtree:true});
-
-  const bottom=document.getElementById('bottomNavV15');
-  if(bottom){
-    bottom.innerHTML=
-      '<button type="button" data-page="home" onclick="openPage(\'home\')"><span>⌂</span><b>Beranda</b></button>'+
-      '<button type="button" data-page="price" onclick="openPage(\'price\')"><span>⌕</span><b>Cek Harga</b></button>'+
-      '<button type="button" data-page="transaction" onclick="openPage(\'transaction\')"><span>🛒</span><b>Transaksi</b></button>'+
-      '<button type="button" data-page="out" onclick="openPage(\'out\')"><span>↗</span><b>Keluar</b></button>'+
-      '<button type="button" data-page="report" onclick="openPage(\'report\')"><span>▧</span><b>Laporan</b></button>';
-    bottom.classList.add('nf-nav-v3');
-  }
-  hideLegacy();
-  try{if(window.Android){const n=Android.productCount();const el=document.querySelector('.stat-products b');if(el)el.textContent=n.toLocaleString('id-ID')}}catch(e){}
-  openPage('home');
-})();
-</script></body></html>';
-
-    const filename="Laporan-"+date+".xls";
     const blob=new Blob([xls],{type:"application/vnd.ms-excel;charset=utf-8"});
     const url=URL.createObjectURL(blob),a=document.createElement("a");
-    a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();
+    a.href=url;a.download="Laporan-"+date+".xls";a.style.display="none";document.body.appendChild(a);a.click();
     setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},1500);
   }
 
   function printReport(){
     const list=filtered(),date=dateEl.value;
     if(!list.length){alert("Tidak ada transaksi pada tanggal "+date+".");return;}
-
     let sales=0,qtotal=0,rows="";
     list.forEach(tx=>{
       sales+=total(tx);
@@ -597,58 +497,22 @@ renderResults(ITEMS.slice(0,30));renderCart();
         rows+='<tr><td>'+esc(name(i))+'</td><td class="r">'+qty(i)+'</td><td class="r">'+esc(rupiah(price(i)))+'</td><td class="r">'+esc(rupiah(subtotal(i)))+'</td></tr>';
       });
     });
-
-    const section=document.getElementById("laporanSection"),old=section.innerHTML,oldTitle=document.title;
-    section.innerHTML='<div class="pdfReport">'+
-      '<div class="pdfHead"><div class="shop">APOTEK NAUFAL FARMA</div><div class="title">LAPORAN PENJUALAN HARIAN</div><div class="date">'+esc(date)+'</div></div>'+
-      '<table><thead><tr><th>Nama Barang</th><th>Qty</th><th>Harga</th><th>Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-      '<div class="pdfBottom">'+
-        '<div><span>Total Item</span><b>'+qtotal+'</b></div>'+
-        '<div class="grand"><span>TOTAL PENJUALAN</span><b>'+esc(rupiah(sales))+'</b></div>'+
-      '</div>'+
-      '<div class="foot">Dicetak dari Apotek Naufal Farma</div>'+
-      '</div>';
-    document.title="Laporan Penjualan "+date;
-
-    const style=document.createElement("style");
-    style.id="pdfPrintStyle";
-    style.textContent=
-      '@page{size:A4 portrait;margin:12mm}'+
-      '@media print{'+
-      'html,body{margin:0!important;padding:0!important;background:#fff!important}'+
-      'body>*{display:none!important}'+
-      '#laporanSection{display:block!important;width:auto!important;max-width:none!important;border:0!important;padding:0!important;margin:0!important;background:#fff!important}'+
-      '.pdfReport{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:9.5pt;width:100%}'+
-      '.pdfHead{text-align:center;margin-bottom:14px;border-bottom:2px solid #222;padding-bottom:9px}'+
-      '.pdfHead .shop{font-size:17pt;font-weight:700;letter-spacing:.3px}'+
-      '.pdfHead .title{font-size:11pt;font-weight:600;margin-top:3px}'+
-      '.pdfHead .date{font-size:9pt;margin-top:3px}'+
-      '.pdfReport table{width:100%;border-collapse:collapse;table-layout:fixed}'+
-      '.pdfReport th,.pdfReport td{border-bottom:1px solid #bbb;padding:6px 7px;vertical-align:top}'+
-      '.pdfReport th{background:#f1f1f1;border-top:1px solid #777;font-weight:700;text-align:left}'+
-      '.pdfReport th:nth-child(1){width:52%}.pdfReport th:nth-child(2){width:10%}.pdfReport th:nth-child(3){width:19%}.pdfReport th:nth-child(4){width:19%}'+
-      '.pdfReport .r{text-align:right}'+
-      '.pdfBottom{margin-top:12px;margin-left:auto;width:280px}'+
-      '.pdfBottom>div{display:flex;justify-content:space-between;padding:5px 0}'+
-      '.pdfBottom .grand{border-top:2px solid #222;margin-top:4px;padding-top:8px;font-size:11pt}'+
-      '.pdfBottom .grand b{font-size:12pt}'+
-      '.foot{margin-top:20px;text-align:right;color:#777;font-size:7.5pt}'+
-      '}';
-
-    document.head.appendChild(style);
-    setTimeout(()=>{
-      window.print();
-      setTimeout(()=>{
-        style.remove();
-        section.innerHTML=old;
-        document.title=oldTitle;
-        const d=document.getElementById("reportDate"),dl=document.getElementById("downloadReport"),pr=document.getElementById("printReport");
-        if(d){d.value=date;d.addEventListener("change",renderPreview)}
-        if(dl)dl.addEventListener("click",downloadReport);
-        if(pr)pr.addEventListener("click",printReport);
-        renderPreview();
-      },800);
-    },150);
+    const bodyHtml=
+      '<h1>APOTEK NAUFAL FARMA</h1>'+
+      '<h2>LAPORAN PENJUALAN HARIAN</h2>'+
+      '<p style="text-align:center;margin:0 0 14px">'+esc(date)+'</p>'+
+      '<table><thead><tr><th>Nama Barang</th><th style="width:10%">Qty</th><th style="width:19%">Harga</th><th style="width:21%">Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      '<table class="total"><tr><th>Total Item</th><td class="r">'+qtotal+'</td></tr><tr><th>TOTAL PENJUALAN</th><td class="r">'+esc(rupiah(sales))+'</td></tr></table>';
+    if(window.Android && typeof window.Android.savePdf==="function"){
+      window.Android.savePdf("Laporan-Penjualan-"+date,bodyHtml);
+      return;
+    }
+    const w=window.open("","_blank");
+    if(!w){alert("Popup diblokir. Izinkan popup untuk mencetak PDF.");return;}
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Penjualan '+esc(date)+'</title><style>'+
+      '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#111;font-size:9pt;margin:0}h1{text-align:center;font-size:17pt;margin:0 0 4px}h2{text-align:center;font-size:11pt;margin:0 0 3px}table{width:100%;table-layout:fixed;border-collapse:collapse}th,td{border:1px solid #888;padding:5px 6px;vertical-align:top;word-break:break-word}th{background:#eee}th:first-child{width:50%}.r{text-align:right}.total{width:300px;margin:14px 0 0 auto}.total th,.total td{font-weight:700}</style></head><body>'+bodyHtml+'</body></html>');
+    w.document.close();
+    setTimeout(()=>w.print(),250);
   }
 
   dateEl.addEventListener("change",renderPreview);
