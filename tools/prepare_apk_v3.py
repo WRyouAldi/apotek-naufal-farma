@@ -14,8 +14,14 @@ if m:
     for i,x in enumerate(items):
         x['cost']=int(costs[i] or 0) if i<len(costs) else 0
     seed_path=Path('app/src/main/assets/products_seed.json')
-    seed_path.write_text(json.dumps(items,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
-    print(f'Native seed written: {len(items)} products')
+    # Write the seed from the exact final item objects, including purchase cost.
+    seed_json=json.dumps(items,ensure_ascii=False,separators=(',',':'))
+    seed_path.write_text(seed_json,encoding='utf-8')
+    seed_check=json.loads(seed_json)
+    seed_costs=sum(1 for x in seed_check if int(x.get('cost',0) or 0)>0)
+    if len(seed_check)!=len(items) or seed_costs<4000:
+        raise SystemExit(f'Native seed validation failed: {len(seed_check)} products, {seed_costs} with Harga Beli')
+    print(f'Native seed written: {len(items)} products; Harga Beli in seed: {seed_costs}')
     s=s[:m.start()]+'const ITEMS='+json.dumps(items,ensure_ascii=False,separators=(',',':'))+';'+s[m.end():]
     print(f'Harga Beli injected: {sum(1 for x in items if x.get("cost",0))}/{len(items)}')
 
