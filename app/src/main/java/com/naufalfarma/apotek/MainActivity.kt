@@ -205,7 +205,7 @@ class MainActivity : Activity() {
                 val json = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
                 val rows = JSONArray(json)
                 val db = writableDatabase
-                val seedVersion = "2026-09-18-db-v2"
+                val seedVersion = "2026-09-19-db-v3"
                 val current = db.rawQuery("SELECT value FROM db_meta WHERE key='seed_version' LIMIT 1", null).use { if (it.moveToFirst()) it.getString(0) else "" }
                 val unitCount = db.rawQuery("SELECT COUNT(*) FROM product_units", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
                 val priceCount = db.rawQuery("SELECT COUNT(*) FROM product_prices", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
@@ -313,9 +313,9 @@ class MainActivity : Activity() {
         }
         fun search(query: String, limit: Int): String {
             val db = readableDatabase; val q = query.trim()
-            val cursor = if (q.isEmpty()) db.rawQuery("SELECT id,code,barcode,name,jenis,brand,satuan,price,stok,rak FROM products ORDER BY name LIMIT ?", arrayOf(limit.toString()))
-            else { val like = "%"+q.lowercase()+"%"; db.rawQuery("SELECT id,code,barcode,name,jenis,brand,satuan,price,stok,rak FROM products WHERE lower(code) LIKE ? OR lower(barcode) LIKE ? OR lower(name) LIKE ? OR lower(jenis) LIKE ? OR lower(brand) LIKE ? ORDER BY CASE WHEN lower(code)=? THEN 0 WHEN lower(barcode)=? THEN 1 WHEN lower(name) LIKE ? THEN 2 ELSE 3 END, name LIMIT ?", arrayOf(like,like,like,like,like,q,q,like,limit.toString())) }
-            val out = JSONArray(); cursor.use { while (it.moveToNext()) out.put(JSONObject().apply { put("id",it.getLong(0)); put("code",it.getString(1)?:("")); put("barcode",it.getString(2)?:("")); put("name",it.getString(3)?:("")); put("jenis",it.getString(4)?:("")); put("brand",it.getString(5)?:("")); put("satuan",it.getString(6)?:("")); put("price",it.getLong(7)); put("stok",it.getDouble(8)); put("rak",it.getString(9)?:("")) }) }
+            val cursor = if (q.isEmpty()) db.rawQuery("SELECT id,code,barcode,name,jenis,brand,satuan,purchase_price,price,stok,rak,supplier,min_stok FROM products ORDER BY name LIMIT ?", arrayOf(limit.toString()))
+            else { val like = "%"+q.lowercase()+"%"; db.rawQuery("SELECT id,code,barcode,name,jenis,brand,satuan,purchase_price,price,stok,rak,supplier,min_stok FROM products WHERE lower(code) LIKE ? OR lower(barcode) LIKE ? OR lower(name) LIKE ? OR lower(jenis) LIKE ? OR lower(brand) LIKE ? ORDER BY CASE WHEN lower(code)=? THEN 0 WHEN lower(barcode)=? THEN 1 WHEN lower(name) LIKE ? THEN 2 ELSE 3 END, name LIMIT ?", arrayOf(like,like,like,like,like,q,q,like,limit.toString())) }
+            val out = JSONArray(); cursor.use { while (it.moveToNext()) out.put(JSONObject().apply { put("id",it.getLong(0)); put("code",it.getString(1)?:("")); put("barcode",it.getString(2)?:("")); put("name",it.getString(3)?:("")); put("jenis",it.getString(4)?:("")); put("brand",it.getString(5)?:("")); put("satuan",it.getString(6)?:("")); put("purchasePrice",it.getLong(7)); put("price",it.getLong(8)); put("stok",it.getDouble(9)); put("rak",it.getString(10)?:("")); put("supplier",it.getString(11)?:("")); put("minStok",it.getDouble(12)) }) }
             return out.toString()
         }
 
