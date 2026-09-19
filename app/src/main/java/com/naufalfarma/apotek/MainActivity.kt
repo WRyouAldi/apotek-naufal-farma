@@ -128,13 +128,28 @@ class MainActivity : Activity() {
         fun savePdf(title: String, bodyHtml: String) {
             runOnUiThread {
                 val pdfWebView = WebView(this@MainActivity)
-                pdfWebView.settings.javaScriptEnabled = false; pdfWebView.setBackgroundColor(Color.WHITE); pdfWebView.alpha = 0f
+                pdfWebView.settings.javaScriptEnabled = false
+                pdfWebView.settings.domStorageEnabled = false
+                pdfWebView.settings.useWideViewPort = false
+                pdfWebView.settings.loadWithOverviewMode = false
+                pdfWebView.setBackgroundColor(Color.WHITE)
+                pdfWebView.alpha = 0f
                 val html = """
-                    <!doctype html><html><head><meta charset='utf-8'><style>
-                    *{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff}
-                    body{font-family:Arial,sans-serif;color:#111;font-size:9pt;padding:28px}
-                    h1{text-align:center;font-size:17pt;margin:0 0 4px}h2{text-align:center;font-size:11pt;margin:0 0 14px}
-                    table{width:100%;border-collapse:collapse}th,td{border:1px solid #888;padding:6px 7px}th{background:#eee}.r{text-align:right}.total{margin:14px 0 0 auto;width:330px}.total th,.total td{font-weight:700}
+                    <!doctype html><html><head><meta charset='utf-8'>
+                    <meta name='viewport' content='width=595, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+                    <style>
+                    *{box-sizing:border-box}
+                    html,body{margin:0;padding:0;background:#fff;width:595px;min-width:595px}
+                    body{font-family:Arial,sans-serif;color:#111;font-size:9pt;padding:24px;width:595px;overflow:hidden}
+                    h1{text-align:center;font-size:17pt;line-height:1.15;margin:0 0 4px}
+                    h2{text-align:center;font-size:11pt;line-height:1.2;margin:0 0 10px}
+                    p{margin:4px 0 10px}
+                    table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed}
+                    th,td{border:1px solid #888;padding:5px 6px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
+                    th{background:#eee}
+                    .r{text-align:right;white-space:nowrap}
+                    .total{margin:12px 0 0 auto;width:300px;max-width:100%}
+                    .total th,.total td{font-weight:700}
                     </style></head><body>$bodyHtml</body></html>
                 """.trimIndent()
                 pdfWebView.webViewClient = object : WebViewClient() { override fun onPageFinished(view: WebView, url: String) { view.postDelayed({ savePdfFromWebView(pdfWebView, title) }, 350) } }
