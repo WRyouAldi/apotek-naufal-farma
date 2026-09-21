@@ -28,6 +28,18 @@ def clean(row):
 def key(row):
     return (str(row.get("code") or "").strip(), str(row.get("barcode") or "").strip(), str(row.get("name") or "").strip().lower())
 
+def find_existing(db, code, barcode, name):
+    if code:
+        row=db.execute("SELECT id FROM products WHERE code=? LIMIT 1",(code,)).fetchone()
+        if row: return row
+    if barcode:
+        row=db.execute("SELECT id FROM products WHERE barcode=? LIMIT 1",(barcode,)).fetchone()
+        if row: return row
+    if name:
+        row=db.execute("SELECT id FROM products WHERE LOWER(name)=? LIMIT 1",(name,)).fetchone()
+        if row: return row
+    return None
+
 class Handler(BaseHTTPRequestHandler):
     def _auth(self):
         return not API_KEY or self.headers.get("X-API-Key","")==API_KEY
@@ -62,15 +74,11 @@ class Handler(BaseHTTPRequestHandler):
         with sqlite3.connect(DB_FILE) as db:
             for raw in rows:
                 r=clean(raw); code,barcode,name=key(r)
-                where=[]; vals=[]
-                if code: where.append("code=?"); vals.append(code)
-                elif barcode: where.append("barcode=?"); vals.append(barcode)
-                elif name: where.append("LOWER(name)=?"); vals.append(name)
-                existing=db.execute("SELECT id FROM products WHERE "+(where[0] if where else "0=1")+" LIMIT 1",vals).fetchone()
+                existing=find_existing(db,code,barcode,name)
                 if existing:
                     sets=[]; args=[]
                     for f in FIELDS:
-                        if f in r and f!="id":
+                        if f in r:
                             sets.append(f+"=?"); args.append(r[f])
                     if sets:
                         args.append(existing[0]); db.execute("UPDATE products SET "+",".join(sets)+" WHERE id=?",args)
@@ -83,7 +91,7 @@ class Handler(BaseHTTPRequestHandler):
                     added+=1
             db.commit()
         self._send(200,{"ok":True,"count":len(rows),"added":added,"updated":updated})
-    def log_message(self,*args): pass
+    def log_message(self,*args: pass
 
 if __name__=="__main__":
     ap=argparse.ArgumentParser(); ap.add_argument("--host",default="0.0.0.0"); ap.add_argument("--port",type=int,default=8080)
