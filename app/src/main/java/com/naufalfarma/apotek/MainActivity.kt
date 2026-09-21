@@ -253,7 +253,7 @@ class MainActivity : Activity() {
         private fun syncNormalizedChildren(db: SQLiteDatabase, productId: Long, o: JSONObject) {
             val unit=o.optString("satuan").trim()
             val barcode=o.optString("barcode").trim()
-            val cost=o.optLong("cost",o.optLong("purchase_price",0L))
+            val cost = if (o.has("cost")) o.optLong("cost") else if (o.has("purchase_price")) o.optLong("purchase_price") else run {\n                db.rawQuery("SELECT purchase_price FROM products WHERE id=?", arrayOf(productId.toString())).use { if (it.moveToFirst()) it.getLong(0) else 0L }\n            }
             val price=o.optLong("price",0L)
             val now=System.currentTimeMillis()
             db.delete("product_units","product_id=?",arrayOf(productId.toString()))
