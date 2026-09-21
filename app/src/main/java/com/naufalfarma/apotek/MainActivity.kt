@@ -253,7 +253,11 @@ class MainActivity : Activity() {
         private fun syncNormalizedChildren(db: SQLiteDatabase, productId: Long, o: JSONObject) {
             val unit=o.optString("satuan").trim()
             val barcode=o.optString("barcode").trim()
-            val cost = if (o.has("cost")) o.optLong("cost") else if (o.has("purchase_price")) o.optLong("purchase_price") else run {\n                db.rawQuery("SELECT purchase_price FROM products WHERE id=?", arrayOf(productId.toString())).use { if (it.moveToFirst()) it.getLong(0) else 0L }\n            }
+            val cost = if (o.has("cost")) o.optLong("cost") else if (o.has("purchase_price")) o.optLong("purchase_price") else run {
+                db.rawQuery("SELECT purchase_price FROM products WHERE id=?", arrayOf(productId.toString())).use {
+                    if (it.moveToFirst()) it.getLong(0) else 0L
+                }
+            }
             val price=o.optLong("price",0L)
             val now=System.currentTimeMillis()
             db.delete("product_units","product_id=?",arrayOf(productId.toString()))
@@ -296,7 +300,10 @@ class MainActivity : Activity() {
             val existing = findId(db, code, barcode, name)
             if (existing != null) {
                 if (mode == "add") return 0
-                db.update("products", values(o), "id=?", arrayOf(existing.toString()))
+                val v = values(o)
+                // CSV import may omit Harga Beli. Preserve the existing value in that case.
+                if (!o.has("cost") && !o.has("purchase_price")) v.remove("purchase_price")
+                db.update("products", v, "id=?", arrayOf(existing.toString()))
                 return 2
             }
             if (mode == "update") return 0
