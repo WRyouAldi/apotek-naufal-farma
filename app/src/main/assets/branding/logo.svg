@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8fffc"/><stop offset=".55" stop-color="#e8faf3"/><stop offset="1" stop-color="#d4f2e6"/></linearGradient>
+ <linearGradient id="g" x1=".15" y1=".05" x2=".85" y2=".95"><stop stop-color="#74df3b"/><stop offset=".45" stop-color="#0aa35f"/><stop offset="1" stop-color="#006b48"/></linearGradient>
+ <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#baff69"/><stop offset="1" stop-color="#079c5c"/></linearGradient>
+ <filter id="s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b6f55" flood-opacity=".18"/></filter>
+</defs>
+<rect x="24" y="24" width="652" height="652" rx="92" fill="url(#bg)" stroke="#c6eee0" stroke-width="8"/>
+<g filter="url(#s)">
+ <rect x="226" y="82" width="248" height="248" rx="58" fill="url(#g)"/>
+ <rect x="82" y="226" width="248" height="248" rx="58" fill="url(#g)"/>
+ <rect x="370" y="226" width="248" height="248" rx="58" fill="url(#g)"/>
+ <rect x="226" y="370" width="248" height="248" rx="58" fill="url(#g)"/>
+ <path d="M310 120h80v190h190v80H390v190h-80V390H120v-80h190z" fill="url(#g)"/>
+</g>
+<g>
+ <path d="M245 295c-25-48-20-91 15-118 18 33 28 71 21 110z" fill="#b8f56a"/>
+ <path d="M267 300c23-44 57-73 104-82-11 47-39 79-87 94z" fill="#41c957"/>
+ <path d="M268 308c36-28 75-41 117-40-29 36-66 52-112 52z" fill="#087d4f"/>
+</g>
+<g transform="translate(350 270)">
+ <path d="M-118 44h236l-18 116c-6 37-38 61-75 61h-50c-37 0-69-24-75-61z" fill="#fff"/>
+ <path d="M-118 44h236v20h-236z" fill="#f2fbf7"/>
+ <path d="M48 -60c28-19 49-10 55 8 6 17-4 34-21 42L10 18-5-2z" fill="#fff" stroke="#087d4f" stroke-width="10"/>
+ <path d="M-74 105c36-50 81-75 136-77-12 53-50 91-106 105z" fill="url(#g2)"/>
+</g>
+<text x="350" y="555" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" letter-spacing="9" fill="#075c42">APOTEK</text>
+<text x="350" y="602" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="42" font-weight="900" letter-spacing="2" fill="#075c42">NAUFAL FARMA</text>
+<path d="M130 635h100M470 635h100" stroke="#16865f" stroke-width="5" stroke-linecap="round"/>
+<text x="350" y="642" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="4" fill="#16865f">SEHAT BERSAMA SETIAP HARI</text>
+</svg>
