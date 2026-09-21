@@ -93,9 +93,9 @@ header{background:linear-gradient(145deg,#087c61,#0c9272);padding:18px 16px 20px
 :root{--g:#0b8a69;--g2:#08765b;--ink:#19322c;--muted:#74827e;--bg:#f5f8f7;--line:#e3ebe8;--shadow:0 7px 24px rgba(20,70,58,.08)}
 body{background:var(--bg);color:var(--ink);font-family:Inter,Roboto,Arial,sans-serif}
 header{position:relative;top:auto;background:linear-gradient(135deg,#0b8a69,#07946f);padding:14px 16px 18px;border-radius:0 0 25px 25px;box-shadow:0 6px 18px rgba(8,91,70,.18)}
-.topbar{max-width:760px;margin:auto;display:flex;align-items:center;gap:11px}.brand-mark{width:48px;height:48px;flex:none}.brand-mark svg{width:100%;height:100%}.brand-text{color:#fff;flex:1}.brand-text h1{font-size:20px;margin:0;font-weight:800;line-height:1.1}.brand-text div{font-size:10px;opacity:.88;margin-top:4px}.top-notify{background:rgba(255,255,255,.14);width:42px;height:42px;padding:0;border-radius:13px;font-size:21px}
+.topbar{max-width:760px;margin:auto;display:flex;align-items:center;gap:11px}.brand-mark{width:48px;height:48px;flex:none;border-radius:14px;overflow:hidden;background:#fff}.brand-mark img{width:100%;height:100%;object-fit:cover;display:block}.brand-text{color:#fff;flex:1}.brand-text h1{font-size:20px;margin:0;font-weight:800;line-height:1.1}.brand-text div{font-size:10px;opacity:.88;margin-top:4px}.top-notify{background:rgba(255,255,255,.14);width:42px;height:42px;padding:0;border-radius:13px;font-size:21px}
 .wrap{max-width:760px;padding:15px;margin:auto}.welcome-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#eafaf5,#f7fbfa);border:1px solid #dceee8;border-radius:20px;padding:17px 18px;margin-bottom:12px;min-height:116px;box-shadow:var(--shadow)}
-.welcome-card:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:#b9eadb55;right:-35px;top:-35px}.welcome-copy{position:relative;z-index:1}.eyebrow{font-size:9px;letter-spacing:1px;font-weight:800;color:var(--g);margin-bottom:5px}.welcome-card h2{font-size:21px;margin:0 0 3px}.welcome-card p{font-size:12px;color:var(--muted);margin:0}.welcome-logo{position:absolute;right:18px;bottom:12px;width:64px;height:64px;z-index:2}.welcome-logo svg{width:100%;height:100%}
+.welcome-card:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:#b9eadb55;right:-35px;top:-35px}.welcome-copy{position:relative;z-index:1}.eyebrow{font-size:9px;letter-spacing:1px;font-weight:800;color:var(--g);margin-bottom:5px}.welcome-card h2{font-size:21px;margin:0 0 3px}.welcome-card p{font-size:12px;color:var(--muted);margin:0}.welcome-logo{position:absolute;right:18px;bottom:12px;width:64px;height:64px;z-index:2;border-radius:16px;overflow:hidden;box-shadow:0 8px 18px rgba(7,92,66,.12)}.welcome-logo img{width:100%;height:100%;object-fit:cover;display:block}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.stat-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:13px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow)}.stat-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;background:#e9f8f3;color:var(--g)}.stat-stock .stat-icon{background:#fff0f0;color:#e25b5b}.stat-card small,.stat-card em{display:block;font-style:normal}.stat-card small{font-size:9px;color:var(--muted)}.stat-card b{display:block;font-size:17px;margin:2px 0}.stat-card em{font-size:8px;color:var(--g);font-weight:700}
 .quick-section{margin-bottom:15px}.section-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 9px}.section-head h3{font-size:15px;margin:0}.section-head span{font-size:10px;color:var(--g);font-weight:700}
 .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.quick-btn{min-height:88px;border:1px solid var(--line);background:#fff;border-radius:17px;padding:11px;text-align:left;box-shadow:var(--shadow);color:var(--ink);display:grid;grid-template-columns:42px 1fr;grid-template-rows:1fr 1fr;column-gap:9px}.quick-btn span{grid-row:1/3;width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px}.quick-btn b{font-size:12px;align-self:end}.quick-btn small{font-size:9px;color:var(--muted);align-self:start;margin-top:3px}.q-green span{background:#e7f8f2;color:#0b8a69}.q-blue span{background:#e9f2ff;color:#3578d4}.q-indigo span{background:#edf0ff;color:#586bd8}.q-orange span{background:#fff1df;color:#e58b2d}
@@ -157,7 +157,7 @@ header{position:relative;top:auto;background:linear-gradient(135deg,#0b8a69,#079
 <body>
 <header>
   <div class="topbar">
-    <div class="brand-mark"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="26" fill="#ffffff"/><path fill="#0b8a69" d="M39 14h22v25h25v22H61v25H39V61H14V39h25z"/></svg></div>
+    <div class="brand-mark"><img src="branding/logo.svg" alt="Apotek Naufal Farma"></div>
     <div class="brand-text"><h1>Naufal Farma</h1><div>Apotek & Sehat Bersama</div></div>
     <button type="button" class="top-notify" onclick="focusReport()" aria-label="Laporan">♧</button>
   </div>
@@ -169,9 +169,7 @@ header{position:relative;top:auto;background:linear-gradient(135deg,#0b8a69,#079
     <h2>Halo, Admin 👋</h2>
     <p>Semoga harimu sehat dan lancar!</p>
   </div>
-  <div class="welcome-logo" aria-label="Logo Apotek Naufal Farma">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="24" fill="#e9fbf4"/><path fill="#0b8a69" d="M39 14h22v25h25v22H61v25H39V61H14V39h25z"/></svg>
-  </div>
+  <div class="welcome-logo" aria-label="Logo Apotek Naufal Farma"><img src="branding/logo.svg" alt="Logo Apotek Naufal Farma"></div>
 </section>
 
 <section class="stats-grid">
