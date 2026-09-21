@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-"""Minimal LAN API for Apotek Naufal Farma.
-Run: NF_API_KEY=rahasia python3 naufal_db_server.py --host 0.0.0.0 --port 8080
-"""
+"""Minimal LAN API for Apotek Naufal Farma."""
 import argparse, json, os, sqlite3
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 DB_FILE=os.environ.get("NF_DB_FILE","naufal_server.db")
 API_KEY=os.environ.get("NF_API_KEY","")
-
 FIELDS=("code","barcode","name","jenis","brand","satuan","cost","purchase_price","price","stok","rak","supplier","keterangan","status","updated_at")
 
 def init_db():
@@ -81,7 +78,8 @@ class Handler(BaseHTTPRequestHandler):
                         if f in r:
                             sets.append(f+"=?"); args.append(r[f])
                     if sets:
-                        args.append(existing[0]); db.execute("UPDATE products SET "+",".join(sets)+" WHERE id=?",args)
+                        args.append(existing[0])
+                        db.execute("UPDATE products SET "+",".join(sets)+" WHERE id=?",args)
                     updated+=1
                 else:
                     if not name: continue
@@ -91,11 +89,15 @@ class Handler(BaseHTTPRequestHandler):
                     added+=1
             db.commit()
         self._send(200,{"ok":True,"count":len(rows),"added":added,"updated":updated})
-    def log_message(self,*args: pass
+    def log_message(self, *args):
+        pass
 
 if __name__=="__main__":
-    ap=argparse.ArgumentParser(); ap.add_argument("--host",default="0.0.0.0"); ap.add_argument("--port",type=int,default=8080)
-    args=ap.parse_args(); init_db()
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--host",default="0.0.0.0")
+    ap.add_argument("--port",type=int,default=8080)
+    args=ap.parse_args()
+    init_db()
     print("Naufal Farma DB Server: http://%s:%s"%(args.host,args.port))
     print("API key:", "enabled" if API_KEY else "disabled")
     ThreadingHTTPServer((args.host,args.port),Handler).serve_forever()
