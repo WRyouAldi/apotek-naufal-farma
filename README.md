@@ -1,5 +1,3 @@
 # Apotek Naufal Farma
 
-Project APK offline dengan database harga dan scanner barcode native Android.
-
-<!-- APK build trigger -->
+Android APK build is automated with GitHub Actions.
