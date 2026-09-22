@@ -23,6 +23,10 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.WebChromeClient
+import android.net.Uri
+import android.content.Intent
+import android.webkit.ValueCallback
 import android.widget.Toast
 import java.io.File
 import java.io.FileOutputStream
@@ -34,6 +38,7 @@ class MainActivity : Activity() {
     private lateinit var productDb: ProductDb
     private var pendingThermalMac: String? = null
     private var pendingThermalText: String? = null
+    private var pendingFileCallback: ValueCallback<Array<Uri>>? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +87,25 @@ class MainActivity : Activity() {
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
                     view.evaluateJavascript(PERSISTENT_DB_JS, null)
+                }
+            }
+            // Required for HTML <input type="file"> controls used by CSV import.
+            webView.webChromeClient = object : WebChromeClient() {
+                override fun onShowFileChooser(view: WebView, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams): Boolean {
+                    pendingFileCallback?.onReceiveValue(null)
+                    pendingFileCallback = filePathCallback
+                    return try {
+                        val intent = fileChooserParams.createIntent().apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "text/csv"
+                        }
+                        startActivityForResult(intent, REQUEST_FILE_PICKER)
+                        true
+                    } catch (e: Exception) {
+                        pendingFileCallback = null
+                        filePathCallback?.onReceiveValue(null)
+                        false
+                    }
                 }
             }
             webView.addJavascriptInterface(AppBridge(), "Android")
@@ -227,7 +251,7 @@ class MainActivity : Activity() {
                 pdfWebView.settings.useWideViewPort = false
                 pdfWebView.settings.loadWithOverviewMode = false
                 pdfWebView.setBackgroundColor(Color.WHITE)
-                pdfWebView.alpha = 0f
+                // Keep alpha at 1.0. WebView.draw() respects View alpha; alpha=0 produced blank PDFs.
                 val html = """
                     <!doctype html><html><head><meta charset='utf-8'>
                     <meta name='viewport' content='width=595, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
@@ -469,6 +493,21 @@ class MainActivity : Activity() {
         }
     }
 
+    @Deprecated("Use Activity Result APIs when this screen is migrated")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_FILE_PICKER) {
+            val result = if (resultCode == Activity.RESULT_OK) {
+                data?.let { intent ->
+                    intent.clipData?.let { clip -> Array(clip.itemCount) { i -> clip.getItemAt(i).uri } }
+                        ?: intent.data?.let { arrayOf(it) }
+                }
+            } else null
+            pendingFileCallback?.onReceiveValue(result)
+            pendingFileCallback = null
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_BT) {
@@ -506,6 +545,7 @@ class MainActivity : Activity() {
 
     companion object {
         private const val REQUEST_BT = 9201
+        private const val REQUEST_FILE_PICKER = 9202
         private val THERMAL_UUID: UUID =
             UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val PERSISTENT_DB_JS = """
