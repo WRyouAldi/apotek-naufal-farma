@@ -29,8 +29,23 @@ android {
         jvmTarget = "17"
     }
 
+    signingConfigs {
+        val signingStoreFile = System.getenv("SIGNING_STORE_FILE")
+        if (!signingStoreFile.isNullOrBlank()) {
+            create("release") {
+                storeFile = file(signingStoreFile)
+                storePassword = System.getenv("SIGNING_STORE_PASSWORD")
+                keyAlias = System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
-        release { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+        }
     }
 }
 
