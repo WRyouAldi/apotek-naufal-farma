@@ -19,8 +19,6 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import java.io.File
 import java.io.FileOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -64,80 +62,6 @@ class MainActivity : Activity() {
         fun importProducts(json: String, mode: String): String = try { productDb.importProducts(JSONArray(json), mode) } catch (e: Exception) { JSONObject().put("ok", false).put("error", e.message ?: "Import gagal").toString() }
         @JavascriptInterface
         fun productCount(): Int = productDb.count()
-
-        @JavascriptInterface
-        fun getServerConfig(): String {
-            val p = getSharedPreferences("server_config", MODE_PRIVATE)
-            return JSONObject().put("baseUrl", p.getString("baseUrl", "") ?: "").put("apiKey", p.getString("apiKey", "") ?: "").toString()
-        }
-
-        @JavascriptInterface
-        fun saveServerConfig(baseUrl: String, apiKey: String): String {
-            val clean = baseUrl.trim().trimEnd('/')
-            getSharedPreferences("server_config", MODE_PRIVATE).edit().putString("baseUrl", clean).putString("apiKey", apiKey.trim()).apply()
-            return JSONObject().put("ok", true).put("baseUrl", clean).toString()
-        }
-
-        @JavascriptInterface
-        fun testServerConnection() {
-            Thread {
-                val result = serverRequest("GET", "/health", null)
-                runOnUiThread { webView.evaluateJavascript("window.nfServerTestResult && window.nfServerTestResult(" + JSONObject.quote(result) + ");", null) }
-            }.start()
-        }
-
-        @JavascriptInterface
-        fun pullServerDatabase(mode: String) {
-            Thread {
-                val result = try {
-                    val raw = serverRequest("GET", "/api/products?limit=50000", null)
-                    val products = if (raw.trim().startsWith("[")) JSONArray(raw) else JSONObject(raw).optJSONArray("products") ?: JSONArray()
-                    val imported = productDb.importProducts(products, mode.ifBlank { "add_update" })
-                    JSONObject(imported).put("serverCount", products.length()).toString()
-                } catch (e: Exception) {
-                    JSONObject().put("ok", false).put("error", e.message ?: "Download database gagal").toString()
-                }
-                runOnUiThread { webView.evaluateJavascript("window.nfServerPullResult && window.nfServerPullResult(" + JSONObject.quote(result) + ");", null) }
-            }.start()
-        }
-
-        @JavascriptInterface
-        fun pushLocalDatabase() {
-            Thread {
-                val result = try {
-                    val products = JSONArray(productDb.exportAll())
-                    serverRequest("POST", "/api/products/sync", JSONObject().put("products", products).toString())
-                } catch (e: Exception) {
-                    JSONObject().put("ok", false).put("error", e.message ?: "Upload database gagal").toString()
-                }
-                runOnUiThread { webView.evaluateJavascript("window.nfServerPushResult && window.nfServerPushResult(" + JSONObject.quote(result) + ");", null) }
-            }.start()
-        }
-
-        private fun serverRequest(method: String, path: String, body: String?): String {
-            val p = getSharedPreferences("server_config", MODE_PRIVATE)
-            val baseUrl = (p.getString("baseUrl", "") ?: "").trim().trimEnd('/')
-            if (baseUrl.isBlank()) return JSONObject().put("ok", false).put("error", "IP/URL server belum diatur").toString()
-            val apiKey = (p.getString("apiKey", "") ?: "").trim()
-            val conn = URL(baseUrl + path).openConnection() as HttpURLConnection
-            try {
-                conn.requestMethod = method
-                conn.connectTimeout = 8000
-                conn.readTimeout = 30000
-                conn.setRequestProperty("Accept", "application/json")
-                if (apiKey.isNotBlank()) conn.setRequestProperty("X-API-Key", apiKey)
-                if (body != null) {
-                    conn.doOutput = true
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
-                    conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
-                }
-                val code = conn.responseCode
-                val stream = if (code in 200..299) conn.inputStream else conn.errorStream
-                val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() } ?: ""
-                if (code !in 200..299) throw IllegalStateException("HTTP " + code + if (text.isNotBlank()) ": " + text else "")
-                return text.ifBlank { JSONObject().put("ok", true).toString() }
-            } finally { conn.disconnect() }
-        }
 
         @JavascriptInterface
         fun listProducts(query: String, limit: Int): String = productDb.search(query, limit.coerceIn(1, 200))
@@ -433,7 +357,25 @@ class MainActivity : Activity() {
             return out.toString()
         }
 
-        fun deleteById(id: Long): Boolean = writableDatabase.delete("products", "id=?", arrayOf(id.toString())) > 0
+        fun deleteById(id: Long): Boolean {
+            if (id <= 0) return false
+            val db = writableDatabase
+            db.beginTransaction()
+            return try {
+                val deleted = db.delete("products", "id=?", arrayOf(id.toString()))
+                if (deleted > 0) {
+                    // Foreign keys are enabled, but explicitly clear normalized
+                    // children as a defensive measure for older databases.
+                    db.delete("product_units", "product_id=?", arrayOf(id.toString()))
+                    db.delete("product_prices", "product_id=?", arrayOf(id.toString()))
+                    db.delete("stock", "product_id=?", arrayOf(id.toString()))
+                }
+                db.setTransactionSuccessful()
+                deleted > 0
+            } finally {
+                db.endTransaction()
+            }
+        }
     }
 
     companion object {
