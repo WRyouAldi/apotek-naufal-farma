@@ -55,6 +55,7 @@
 
   const items=make('nfItems','Daftar Item','Kelola database produk secara offline.');
   const host=document.createElement('div'); host.id='nfItemsHost'; host.className='nf-crud-host'; items.appendChild(host);
+  setTimeout(()=>window.nfCrudInit?.(),0);
 
   // Rebuild the existing navigation instead of creating a second navigation bar.
   if(nodes.bottom){
