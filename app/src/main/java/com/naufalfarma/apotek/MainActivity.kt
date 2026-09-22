@@ -29,7 +29,7 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.splash_screen)
         productDb = ProductDb(this)
         // Seed the persistent SQLite database natively from the bundled master.
         // This avoids relying on WebView bridge timing during startup.
@@ -38,19 +38,22 @@ class MainActivity : Activity() {
         } catch (e: Exception) {
             Toast.makeText(this, "Database produk belum berhasil diinisialisasi: ${e.message}", Toast.LENGTH_LONG).show()
         }
-        webView = findViewById(R.id.webView)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.allowFileAccess = true
-        webView.settings.allowContentAccess = true
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                super.onPageFinished(view, url)
-                view.evaluateJavascript(PERSISTENT_DB_JS, null)
+        android.os.Handler(mainLooper).postDelayed({
+            setContentView(R.layout.activity_main)
+            webView = findViewById(R.id.webView)
+            webView.settings.javaScriptEnabled = true
+            webView.settings.domStorageEnabled = true
+            webView.settings.allowFileAccess = true
+            webView.settings.allowContentAccess = true
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+                    view.evaluateJavascript(PERSISTENT_DB_JS, null)
+                }
             }
-        }
-        webView.addJavascriptInterface(AppBridge(), "Android")
-        webView.loadUrl("file:///android_asset/index.html")
+            webView.addJavascriptInterface(AppBridge(), "Android")
+            webView.loadUrl("file:///android_asset/index.html")
+        }, 550)
     }
 
     inner class AppBridge {
