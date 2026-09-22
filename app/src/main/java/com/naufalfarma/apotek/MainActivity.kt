@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.pdf.PdfDocument
 import android.os.Build
 import android.os.Bundle
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
@@ -31,6 +32,20 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.splash_screen)
         productDb = ProductDb(this)
+
+        // Minimal branded splash: animate only the application logo.
+        findViewById<android.view.View>(R.id.splashLogo)?.apply {
+            alpha = 0f
+            scaleX = 0.72f
+            scaleY = 0.72f
+            animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(520)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .start()
+        }
         // Seed the persistent SQLite database natively from the bundled master.
         // This avoids relying on WebView bridge timing during startup.
         try {
@@ -53,7 +68,7 @@ class MainActivity : Activity() {
             }
             webView.addJavascriptInterface(AppBridge(), "Android")
             webView.loadUrl("file:///android_asset/index.html")
-        }, 550)
+        }, 700)
     }
 
     inner class AppBridge {
