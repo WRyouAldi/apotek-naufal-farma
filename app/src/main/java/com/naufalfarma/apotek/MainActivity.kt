@@ -469,7 +469,45 @@ class MainActivity : Activity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {\n        super.onRequestPermissionsResult(requestCode, permissions, grantResults)\n        if (requestCode == REQUEST_BT) {\n            val granted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || grantResults.any { it == PackageManager.PERMISSION_GRANTED }\n            if (granted) {\n                val mac = pendingThermalMac\n                val text = pendingThermalText\n                pendingThermalMac = null\n                pendingThermalText = null\n                webView.post {\n                    webView.evaluateJavascript("window.onThermalPermissionReady && window.onThermalPermissionReady();", null)\n                    if (!mac.isNullOrBlank() && !text.isNullOrBlank()) {\n                        val result = AppBridge().printThermal(mac, text)\n                        webView.evaluateJavascript("window.onThermalPrintResult && window.onThermalPrintResult(" + JSONObject.quote(result) + ");", null)\n                    }\n                }\n            } else {\n                webView.post { webView.evaluateJavascript("window.onThermalPermissionDenied && window.onThermalPermissionDenied();", null) }\n            }\n        }\n    }\n\n    companion object {\n        private const val REQUEST_BT = 9201\n        private val THERMAL_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_BT) {
+            val granted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                grantResults.any { it == PackageManager.PERMISSION_GRANTED }
+            if (granted) {
+                val mac = pendingThermalMac
+                val text = pendingThermalText
+                pendingThermalMac = null
+                pendingThermalText = null
+                webView.post {
+                    webView.evaluateJavascript(
+                        "window.onThermalPermissionReady && window.onThermalPermissionReady();",
+                        null
+                    )
+                    if (!mac.isNullOrBlank() && !text.isNullOrBlank()) {
+                        val result = AppBridge().printThermal(mac, text)
+                        webView.evaluateJavascript(
+                            "window.onThermalPrintResult && window.onThermalPrintResult(" +
+                                JSONObject.quote(result) + ");",
+                            null
+                        )
+                    }
+                }
+            } else {
+                webView.post {
+                    webView.evaluateJavascript(
+                        "window.onThermalPermissionDenied && window.onThermalPermissionDenied();",
+                        null
+                    )
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val REQUEST_BT = 9201
+        private val THERMAL_UUID: UUID =
+            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val PERSISTENT_DB_JS = """
             (function(){
               if(window.__naufalDbReady)return; window.__naufalDbReady=true;
