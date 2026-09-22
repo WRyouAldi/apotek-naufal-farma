@@ -7,12 +7,17 @@ android {
     namespace = "com.naufalfarma.apotek"
     compileSdk = 35
 
+    // GitHub Actions supplies a monotonically increasing build number.
+    // Local builds fall back to the existing app version code.
+    val ciBuildNumber = providers.environmentVariable("GITHUB_RUN_NUMBER")
+        .orNull?.toIntOrNull() ?: 14
+
     defaultConfig {
         applicationId = "com.naufalfarma.apotek"
         minSdk = 23
         targetSdk = 35
-        versionCode = 14
-        versionName = "1.4"
+        versionCode = ciBuildNumber
+        versionName = "1.4.$ciBuildNumber"
     }
 
     compileOptions {
