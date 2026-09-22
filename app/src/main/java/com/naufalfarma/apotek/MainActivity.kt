@@ -236,9 +236,6 @@ class MainActivity : Activity() {
                 val db = writableDatabase
                 val seedVersion = "2026-09-19-db-v3"
                 val current = db.rawQuery("SELECT value FROM db_meta WHERE key='seed_version' LIMIT 1", null).use { if (it.moveToFirst()) it.getString(0) else "" }
-                val unitCount = db.rawQuery("SELECT COUNT(*) FROM product_units", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
-                val priceCount = db.rawQuery("SELECT COUNT(*) FROM product_prices", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
-                val stockCount = db.rawQuery("SELECT COUNT(*) FROM stock", null).use { if (it.moveToFirst()) it.getInt(0) else 0 }
                 if (current == seedVersion) return
                 db.beginTransaction()
                 try {
