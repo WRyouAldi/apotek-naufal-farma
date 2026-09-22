@@ -4,53 +4,13 @@
     android:layout_height="match_parent"
     android:background="#0F6F55">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="32dp">
+    <ImageView
+        android:id="@+id/splashLogo"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logo_apotek_naufal_farma" />
 
-        <ImageView
-            android:id="@+id/splashLogo"
-            android:layout_width="112dp"
-            android:layout_height="112dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/logo_apotek_naufal_farma" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="APOTEK NAUFAL FARMA"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.04" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"
-            android:text="Sistem Informasi Apotek"
-            android:textColor="#D9F5EA"
-            android:textSize="13sp" />
-
-        <ProgressBar
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginTop="32dp"
-            android:indeterminate="true"
-            android:indeterminateTint="#FFFFFF" />
-
-        <TextView
-            android:id="@+id/splashStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Menyiapkan database..."
-            android:textColor="#D9F5EA"
-            android:textSize="11sp" />
-
-    </LinearLayout>
 </FrameLayout>
