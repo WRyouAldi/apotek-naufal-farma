@@ -9,6 +9,12 @@ import android.graphics.Color
 import android.graphics.pdf.PdfDocument
 import android.os.Build
 import android.os.Bundle
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothSocket
+import android.content.pm.PackageManager
+import java.util.UUID
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.os.Environment
 import android.provider.MediaStore
@@ -26,6 +32,8 @@ import org.json.JSONObject
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var productDb: ProductDb
+    private var pendingThermalMac: String? = null
+    private var pendingThermalText: String? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +90,66 @@ class MainActivity : Activity() {
     }
 
     inner class AppBridge {
+        @JavascriptInterface
+        fun requestBluetoothPermission() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN), REQUEST_BT)
+            } else {
+                webView.post { webView.evaluateJavascript("window.onThermalPermissionReady && window.onThermalPermissionReady();", null) }
+            }
+        }
+
+        @JavascriptInterface
+        fun thermalPrinters(): String {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) return "[]"
+            return try {
+                val adapter = BluetoothAdapter.getDefaultAdapter() ?: return "[]"
+                val out = JSONArray()
+                adapter.bondedDevices.sortedBy { it.name ?: it.address }.forEach { d ->
+                    out.put(JSONObject().put("name", d.name ?: "Thermal Printer").put("address", d.address))
+                }
+                out.toString()
+            } catch (_: Exception) { "[]" }
+        }
+
+        @JavascriptInterface
+        fun printThermal(mac: String, text: String): String {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                pendingThermalMac = mac; pendingThermalText = text
+                requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN), REQUEST_BT)
+                return JSONObject().put("ok", false).put("permission", true).toString()
+            }
+            return try {
+                val adapter = BluetoothAdapter.getDefaultAdapter() ?: throw IllegalStateException("Bluetooth tidak tersedia")
+                if (!adapter.isEnabled) throw IllegalStateException("Bluetooth belum aktif")
+                val device = adapter.getRemoteDevice(mac)
+                val socket = device.createRfcommSocketToServiceRecord(THERMAL_UUID)
+                socket.connect()
+                socket.outputStream.use { out ->
+                    out.write(byteArrayOf(0x1B, 0x40))
+                    out.write(byteArrayOf(0x1B, 0x61, 0x01))
+                    out.write(text.toThermalBytes())
+                    out.write("\\n\\n\\n".toByteArray(Charsets.US_ASCII))
+                    out.write(byteArrayOf(0x1D, 0x56, 0x00))
+                    out.flush()
+                }
+                socket.close()
+                JSONObject().put("ok", true).toString()
+            } catch (e: Exception) {
+                JSONObject().put("ok", false).put("error", e.message ?: "Printer tidak dapat dihubungkan").toString()
+            }
+        }
+
+        private fun String.toThermalBytes(): ByteArray {
+            val normalized = java.text.Normalizer.normalize(this, java.text.Normalizer.Form.NFD)
+                .replace("\\p{M}+".toRegex(), "")
+                .replace("[^\\u000A\\u000D\\u0020-\\u007E]".toRegex(), "?")
+            return normalized.toByteArray(Charsets.US_ASCII)
+        }
+
         @JavascriptInterface
         fun searchProducts(query: String, limit: Int): String = productDb.search(query, limit.coerceIn(1, 100))
         @JavascriptInterface
@@ -401,7 +469,7 @@ class MainActivity : Activity() {
         }
     }
 
-    companion object {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {\n        super.onRequestPermissionsResult(requestCode, permissions, grantResults)\n        if (requestCode == REQUEST_BT) {\n            val granted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || grantResults.any { it == PackageManager.PERMISSION_GRANTED }\n            if (granted) {\n                val mac = pendingThermalMac\n                val text = pendingThermalText\n                pendingThermalMac = null\n                pendingThermalText = null\n                webView.post {\n                    webView.evaluateJavascript("window.onThermalPermissionReady && window.onThermalPermissionReady();", null)\n                    if (!mac.isNullOrBlank() && !text.isNullOrBlank()) {\n                        val result = AppBridge().printThermal(mac, text)\n                        webView.evaluateJavascript("window.onThermalPrintResult && window.onThermalPrintResult(" + JSONObject.quote(result) + ");", null)\n                    }\n                }\n            } else {\n                webView.post { webView.evaluateJavascript("window.onThermalPermissionDenied && window.onThermalPermissionDenied();", null) }\n            }\n        }\n    }\n\n    companion object {\n        private const val REQUEST_BT = 9201\n        private val THERMAL_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val PERSISTENT_DB_JS = """
             (function(){
               if(window.__naufalDbReady)return; window.__naufalDbReady=true;
