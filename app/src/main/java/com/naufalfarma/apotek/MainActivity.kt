@@ -33,17 +33,27 @@ class MainActivity : Activity() {
         setContentView(R.layout.splash_screen)
         productDb = ProductDb(this)
 
-        // Minimal branded splash: animate only the application logo.
+        // Minimal branded splash: only the application logo, with a smooth
+        // entrance followed by a subtle breathing pulse.
         findViewById<android.view.View>(R.id.splashLogo)?.apply {
             alpha = 0f
             scaleX = 0.72f
             scaleY = 0.72f
+
             animate()
                 .alpha(1f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(520)
+                .scaleX(1.04f)
+                .scaleY(1.04f)
+                .setDuration(460)
                 .setInterpolator(AccelerateDecelerateInterpolator())
+                .withEndAction {
+                    animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(260)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
+                }
                 .start()
         }
         // Seed the persistent SQLite database natively from the bundled master.
@@ -68,7 +78,7 @@ class MainActivity : Activity() {
             }
             webView.addJavascriptInterface(AppBridge(), "Android")
             webView.loadUrl("file:///android_asset/index.html")
-        }, 700)
+        }, 820)
     }
 
     inner class AppBridge {
