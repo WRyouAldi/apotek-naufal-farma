@@ -54,8 +54,6 @@
   if(nodes.report)report.appendChild(nodes.report);
 
   const items=make('nfItems','Daftar Item','Kelola database produk secara offline.');
-  const database=make('nfDatabase','Database Server','Hubungkan database lokal dengan server melalui IP / LAN.');
-  const dbHost=document.createElement('div'); dbHost.id='nfDatabaseHost'; dbHost.className='nf-database-host'; database.appendChild(dbHost);
   const host=document.createElement('div'); host.id='nfItemsHost'; host.className='nf-crud-host'; items.appendChild(host);
 
   // Rebuild the existing navigation instead of creating a second navigation bar.
@@ -65,14 +63,13 @@
       '<button type="button" data-page="price"><span>⌕</span><b>Cek Harga</b></button>'+
       '<button type="button" data-page="transaction"><span>🛒</span><b>Transaksi</b></button>'+
       '<button type="button" data-page="out"><span>↗</span><b>Keluar</b></button>'+
-      '<button type="button" data-page="report"><span>▤</span><b>Laporan</b></button>'+\
-      '<button type="button" data-page="database"><span>⇄</span><b>Database</b></button>';
+      '<button type="button" data-page="report"><span>▤</span><b>Laporan</b></button>';
     nodes.bottom.classList.add('nf-glass-nav');
     nodes.bottom.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.nfGo(b.dataset.page)));
   }
 
   wrap.innerHTML='';
-  wrap.append(home,price,tx,out,report,items,database);
+  wrap.append(home,price,tx,out,report,items);
 
   // Keep dynamically created Barang Keluar inside its own page.
   const relocate=()=>{
@@ -85,7 +82,7 @@
   setTimeout(relocate,100);
   setTimeout(relocate,500);
 
-  const map={home:'nfHome',price:'nfPrice',transaction:'nfTransaction',out:'nfOut',report:'nfReport',items:'nfItems',database:'nfDatabase'};
+  const map={home:'nfHome',price:'nfPrice',transaction:'nfTransaction',out:'nfOut',report:'nfReport',items:'nfItems'};
   window.nfGo=function(page){
     if(!map[page])page='home';
     Object.entries(map).forEach(([key,id])=>{
@@ -97,7 +94,6 @@
     if(page==='price')setTimeout(()=>document.getElementById('q')?.focus(),120);
     if(page==='items')window.nfCrudRefresh?.();
     if(page==='report')window.nfReportRefresh?.();
-    if(page==='database')window.nfDatabaseRefresh?.();
   };
 
   window.focusSearch=function(scan){
