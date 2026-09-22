@@ -35,7 +35,20 @@ $('nfCrudCancel').onclick=close;$('nfCrudSave').onclick=save}
 function openForm(x){editing=x||null;$('nfCrudTitle').textContent=x?'Edit Item':'Tambah Item';const v=k=>x?.[k]??'';$('nfFName').value=v('name');$('nfFCode').value=v('code');$('nfFBarcode').value=v('barcode');$('nfFJenis').value=v('jenis');$('nfFBrand').value=v('brand');$('nfFSatuan').value=v('satuan');$('nfFPrice').value=v('price');$('nfFStok').value=v('stok');$('nfFRak').value=v('rak');$('nfCrudModal').classList.add('show');setTimeout(()=>$('nfFName').focus(),80)}
 function close(){$('nfCrudModal')?.classList.remove('show');editing=null}
 function save(){const row={name:$('nfFName').value.trim(),code:$('nfFCode').value.trim(),barcode:$('nfFBarcode').value.trim(),jenis:$('nfFJenis').value.trim(),brand:$('nfFBrand').value.trim(),satuan:$('nfFSatuan').value.trim(),price:Number($('nfFPrice').value||0),stok:Number($('nfFStok').value||0),rak:$('nfFRak').value.trim()};if(!row.name&&!row.code&&!row.barcode){alert('Isi minimal Nama, Kode, atau Barcode.');return}try{if(!native())throw Error('Database native belum tersedia.');if(editing?.id)Android.deleteProduct(Number(editing.id));const res=JSON.parse(Android.upsertProduct(JSON.stringify(row)));if(!res.ok)throw Error(res.error||'Simpan gagal');close();render();status('✓ Item berhasil disimpan.')}catch(e){alert(e.message)}}
-function del(x){if(!x?.id)return;if(!confirm('Hapus '+(x.name||'item')+'?'))return;try{const res=JSON.parse(Android.deleteProduct(Number(x.id)));if(!res.ok)throw Error('Hapus gagal');render();status('✓ Item dihapus.')}catch(e){alert(e.message)}}
+function del(x){
+  const id=Number(x?.id||0);
+  if(!id||!native()){alert('Item belum memiliki ID database yang valid.');return}
+  if(!confirm('Hapus '+(x.name||'item')+'?'))return;
+  try{
+    const res=JSON.parse(Android.deleteProduct(id));
+    if(!res.ok)throw Error(res.error||'Hapus gagal');
+    const after=list($('nfCrudSearch')?.value||'');
+    if(after.some(r=>Number(r.id)===id))throw Error('Item masih ditemukan setelah dihapus. Silakan refresh database.');
+    cache=after;
+    render();
+    status('✓ Item berhasil dihapus.');
+  }catch(e){alert(e.message||'Hapus gagal')}
+}
 function status(t){const e=$('nfCrudStatus');if(e){e.textContent=t;e.className='nf-crud-status status-ok'}}
 function render(){const q=$('nfCrudSearch')?.value||'';cache=list(q);if(!cache.length)cache=fallback(q);const total=native()?Android.productCount():((window.ITEMS||[]).length);$('nfCrudCount').textContent=total.toLocaleString('id-ID')+' produk • menampilkan '+cache.length;const host=$('nfCrudList');if(!host)return;host.innerHTML=cache.map(x=>'<div class="nf-crud-item"><div class="nf-crud-item-head"><div><div class="nf-crud-name">'+E(x.name||'(Tanpa nama)')+'</div><div class="nf-crud-code">'+E(x.code||'-')+(x.barcode?' • '+E(x.barcode):'')+'</div></div><div class="nf-crud-price">'+R(x.price)+'</div></div><div class="nf-crud-meta">'+E(x.jenis||'-')+' • '+E(x.satuan||'-')+' • Stok '+E(x.stok??0)+(x.rak?' • Rak '+E(x.rak):'')+'</div><div class="nf-crud-actions"><button class="nf-edit" data-id="'+Number(x.id||0)+'">✎ Edit</button><button class="nf-del" data-id="'+Number(x.id||0)+'">Hapus</button></div></div>').join('')||'<div class="nf-crud-empty">Item tidak ditemukan.</div>';host.querySelectorAll('.nf-edit').forEach(b=>b.onclick=()=>openForm(cache.find(x=>Number(x.id)===Number(b.dataset.id))));host.querySelectorAll('.nf-del').forEach(b=>b.onclick=()=>del(cache.find(x=>Number(x.id)===Number(b.dataset.id))))}
 function csvParse(t){const rows=[];let row=[],cell='',q=false;for(let i=0;i<t.length;i++){const c=t[i],n=t[i+1];if(c==='"'){if(q&&n==='"'){cell+='"';i++}else q=!q}else if(c===','&&!q){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell=''}else cell+=c}row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows}
