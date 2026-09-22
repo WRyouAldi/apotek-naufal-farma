@@ -95,9 +95,23 @@ class MainActivity : Activity() {
                     pendingFileCallback?.onReceiveValue(null)
                     pendingFileCallback = filePathCallback
                     return try {
-                        val intent = fileChooserParams.createIntent().apply {
+                        // Some Android file managers hide .csv files when the
+                        // intent is restricted to text/csv. Use a broad document picker
+                        // and let the WebView/JS validate the selected file.
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                             addCategory(Intent.CATEGORY_OPENABLE)
-                            type = "text/csv"
+                            type = "*/*"
+                            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+                            putExtra(
+                                Intent.EXTRA_MIME_TYPES,
+                                arrayOf(
+                                    "text/csv",
+                                    "application/csv",
+                                    "application/vnd.ms-excel",
+                                    "text/plain",
+                                    "application/octet-stream"
+                                )
+                            )
                         }
                         startActivityForResult(intent, REQUEST_FILE_PICKER)
                         true
