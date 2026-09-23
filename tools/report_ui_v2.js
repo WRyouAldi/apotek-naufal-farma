@@ -1,1 +1,82 @@
-(function(){'use strict';const $=id=>document.getElementById(id);const rupiah=n=>'Rp '+Number(n||0).toLocaleString('id-ID');const KEY='naufal_farma_transactions';function history(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}function dateOf(tx){if(tx&&tx.iso){const d=new Date(tx.iso);if(!isNaN(d))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}const s=String(tx?.date||'');const m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);return m?m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0'):''}function items(tx){return Array.isArray(tx?.items)?tx.items:[]}function qty(i){return Number(i?.qty??i?.quantity??0)||0}function price(i){return Number(i?.price??i?.harga??0)||0}function sub(i){return i?.subtotal!==undefined?Number(i.subtotal)||0:qty(i)*price(i)}function total(t){return Number(t?.total??0)||items(t).reduce((a,i)=>a+sub(i),0)}function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()+1-1).padStart(2,'0')}function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function refresh(){const e=$('reportDate');if(!e)return;const list=history().filter(t=>dateOf(t)===e.value);let q=0,s=0;list.forEach(t=>{s+=total(t);items(t).forEach(i=>q+=qty(i))});if($('nfReportTx'))$('nfReportTx').textContent=list.length.toLocaleString('id-ID');if($('nfReportQty'))$('nfReportQty').textContent=q.toLocaleString('id-ID');if($('nfReportSales'))$('nfReportSales').textContent=rupiah(s);if($('nfReportStatus'))$('nfReportStatus').textContent=list.length?list.length+' transaksi pada '+e.value:'Belum ada transaksi pada '+e.value}function decorate(){const s=$('laporanSection');if(!s||s.dataset.nfReportV2)return;s.dataset.nfReportV2='1';const h=s.querySelector('h3');if(h)h.innerHTML='<span class="nf-report-icon">▧</span><span><small>LAPORAN PENJUALAN</small>Laporan Harian</span>';const intro=s.querySelector(':scope > div:not(.report-controls):not(#reportPreview)');if(intro)intro.className='nf-report-intro';const c=s.querySelector('.report-controls');if(c){c.classList.add('nf-report-controls');const l=c.querySelector('label'),old=c.querySelector('#reportDate');if(l&&old){l.innerHTML='<span class="nf-date-label">Tanggal laporan</span>';l.appendChild(old)}const q=document.createElement('div');q.className='nf-report-quick';q.innerHTML='<button type="button" id="nfToday">Hari ini</button><button type="button" id="nfYesterday">Kemarin</button>';if(l)l.appendChild(q);const d=$('reportDate');if(d&&!d.value){const x=new Date();d.value=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')}const dl=$('downloadReport'),pr=$('printReport');if(dl){dl.innerHTML='<span>↥</span><b>Excel</b><small>Export data</small>';dl.className='nf-report-action nf-excel'}if(pr){pr.innerHTML='<span>▣</span><b>PDF / Cetak</b><small>Dokumen A4</small>';pr.className='nf-report-action nf-print'}$('nfToday').onclick=()=>{const x=new Date();d.value=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');d.dispatchEvent(new Event('change'))};$('nfYesterday').onclick=()=>{d.value=yesterday();d.dispatchEvent(new Event('change'))}}const k=document.createElement('div');k.className='nf-report-kpi';k.innerHTML='<div class="nf-kpi"><span>Transaksi</span><b id="nfReportTx">0</b><small>nota tersimpan</small></div><div class="nf-kpi"><span>Item Terjual</span><b id="nfReportQty">0</b><small>total qty</small></div><div class="nf-kpi nf-kpi-sales"><span>Omzet</span><b id="nfReportSales">Rp 0</b><small>penjualan pada tanggal terpilih</small></div>';const p=$('reportPreview');if(p)p.before(k);const st=document.createElement('div');st.id='nfReportStatus';st.className='nf-report-status';if(p)p.before(st);refresh()}function boot(){decorate();setTimeout(refresh,300);setTimeout(decorate,500)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot()})();
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const rupiah=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+  const KEY='naufal_farma_transactions';
+  const BK_KEY='naufal_farma_barang_keluar';
+  function read(key){try{const x=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
+  const history=()=>read(KEY);
+  const bkHistory=()=>read(BK_KEY);
+  function dateOf(tx){
+    if(tx&&tx.iso){const d=new Date(tx.iso);if(!isNaN(d))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+    const s=String(tx?.date||'');
+    let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+    if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+    m=s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+    return m?m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0'):'';
+  }
+  function items(tx){return Array.isArray(tx?.items)?tx.items:[]}
+  function qty(i){return Number(i?.qty??i?.quantity??0)||0}
+  function price(i){return Number(i?.price??i?.harga??0)||0}
+  function sub(i){return i?.subtotal!==undefined?Number(i.subtotal)||0:qty(i)*price(i)}
+  function total(t){return Number(t?.total??0)||items(t).reduce((a,i)=>a+sub(i),0)}
+  function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function refresh(){
+    const e=$('reportDate');if(!e)return;
+    const list=history().filter(t=>dateOf(t)===e.value);let q=0,s=0;
+    list.forEach(t=>{s+=total(t);items(t).forEach(i=>q+=qty(i))});
+    if($('nfReportTx'))$('nfReportTx').textContent=list.length.toLocaleString('id-ID');
+    if($('nfReportQty'))$('nfReportQty').textContent=q.toLocaleString('id-ID');
+    if($('nfReportSales'))$('nfReportSales').textContent=rupiah(s);
+    if($('nfReportStatus'))$('nfReportStatus').textContent=list.length?list.length+' transaksi pada '+e.value:'Belum ada transaksi pada '+e.value;
+  }
+  function decorate(){
+    const s=$('laporanSection');if(!s||s.dataset.nfReportV2)return;
+    s.dataset.nfReportV2='1';
+    const h=s.querySelector('h3');if(h)h.innerHTML='<span class="nf-report-icon">▧</span><span><small>LAPORAN PENJUALAN</small>Laporan Harian</span>';
+    const intro=s.querySelector(':scope > div:not(.report-controls):not(#reportPreview)');if(intro)intro.className='nf-report-intro';
+    const c=s.querySelector('.report-controls');
+    if(c){
+      c.classList.add('nf-report-controls');
+      const l=c.querySelector('label'),old=c.querySelector('#reportDate');
+      if(l&&old){l.innerHTML='<span class="nf-date-label">Tanggal laporan</span>';l.appendChild(old)}
+      const q=document.createElement('div');q.className='nf-report-quick';q.innerHTML='<button type="button" id="nfToday">Hari ini</button><button type="button" id="nfYesterday">Kemarin</button>';if(l)l.appendChild(q);
+      const d=$('reportDate');if(d&&!d.value){const x=new Date();d.value=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')}
+      const dl=$('downloadReport'),pr=$('printReport');
+      if(dl){dl.innerHTML='<span>↥</span><b>Excel</b><small>Export data</small>';dl.className='nf-report-action nf-excel'}
+      if(pr){pr.innerHTML='<span>▣</span><b>PDF / Cetak</b><small>Dokumen A4</small>';pr.className='nf-report-action nf-print'}
+      $('nfToday').onclick=()=>{const x=new Date();d.value=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');d.dispatchEvent(new Event('change'))};
+      $('nfYesterday').onclick=()=>{d.value=yesterday();d.dispatchEvent(new Event('change'))};
+    }
+    const k=document.createElement('div');k.className='nf-report-kpi';k.innerHTML='<div class="nf-kpi"><span>Transaksi</span><b id="nfReportTx">0</b><small>nota tersimpan</small></div><div class="nf-kpi"><span>Item Terjual</span><b id="nfReportQty">0</b><small>total qty</small></div><div class="nf-kpi nf-kpi-sales"><span>Omzet</span><b id="nfReportSales">Rp 0</b><small>penjualan pada tanggal terpilih</small></div>';
+    const p=$('reportPreview');if(p)p.before(k);
+    const st=document.createElement('div');st.id='nfReportStatus';st.className='nf-report-status';if(p)p.before(st);
+    refresh();
+  }
+  function buildBarangKeluarPdf(txs){
+    const list=Array.isArray(txs)?txs:[];let rows='',no=0,totalQty=0,totalValue=0;
+    list.forEach(tx=>{
+      const d=dateOf(tx)||String(tx.date||'').split(/[ ,]/)[0]||'-';
+      items(tx).forEach(i=>{
+        no++;const q=qty(i),p=Number(i.cost??i.purchasePrice??i.price??i.harga??0)||0,v=Number(i.subtotal??q*p)||0;totalQty+=q;totalValue+=v;
+        rows+='<tr><td class="c">'+no+'</td><td>'+esc(i.code??i.kode??'')+'</td><td>'+esc(i.name??i.nama??'')+'</td><td class="c">'+q+'</td><td class="c">'+esc(i.satuan??i.unit??i.uom??'-')+'</td><td class="c">'+esc(d)+'</td><td>'+esc(tx.note??tx.keterangan??'Barang keluar')+'</td></tr>';
+      });
+    });
+    const now=new Date(),printed=String(now.getDate()).padStart(2,'0')+' '+now.toLocaleString('id-ID',{month:'short'})+' '+now.getFullYear()+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    return '<div class="page"><div class="head"><div class="brand"><div class="logo">+</div><div><div class="store">APOTEK NAUFAL FARMA</div><div class="addr">Laporan Persediaan &amp; Barang Keluar</div></div></div><div class="meta"><div>Tanggal Cetak : '+esc(printed)+'</div><div>Periode : Semua data tersimpan</div></div></div><div class="title">LAPORAN BARANG KELUAR</div><div class="period">Daftar barang yang telah dicatat keluar dari persediaan</div><table><thead><tr><th>No</th><th>Kode Item</th><th>Nama Barang</th><th>Qty</th><th>Satuan</th><th>Tanggal</th><th>Keterangan</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7" class="c">Belum ada data barang keluar.</td></tr>')+'</tbody></table><div class="summary"><div><b>Total Qty</b><span>'+totalQty.toLocaleString('id-ID')+'</span></div><div><b>Total Nilai</b><span>'+rupiah(totalValue)+'</span></div></div><div class="foot"><div>Dicetak dari aplikasi Apotek Naufal Farma</div><div><strong>Admin</strong><br><em>Sehat Bersama, Setiap Hari</em></div></div></div>';
+  }
+  function saveBarangKeluarPdf(){
+    const txs=bkHistory();
+    if(!txs.length){alert('Belum ada riwayat Barang Keluar.');return}
+    const body='<style>*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}body{font-size:8.5pt;line-height:1.25;width:100%}.page{width:100%;position:relative;padding-bottom:22mm}.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1.2px solid #333;padding-bottom:5mm;margin-bottom:5mm}.brand{display:flex;align-items:center;gap:3mm}.logo{width:13mm;height:13mm;border-radius:3mm;background:#198754;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18pt;font-weight:900}.store{font-size:15pt;font-weight:800}.addr,.meta{font-size:7.5pt}.meta{text-align:right;line-height:1.55;white-space:nowrap}.title{text-align:center;font-size:15pt;font-weight:800}.period{text-align:center;font-size:8.5pt;margin:1.5mm 0 5mm}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:.45pt solid #777;padding:2.2mm 1.8mm;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word}th{background:#ededed;text-align:center;font-weight:800}th:nth-child(1){width:7%}th:nth-child(2){width:17%}th:nth-child(3){width:26%}th:nth-child(4){width:7%}th:nth-child(5){width:10%}th:nth-child(6){width:16%}th:nth-child(7){width:17%}.c{text-align:center}.summary{display:flex;justify-content:flex-end;gap:20mm;margin-top:6mm;border-top:1px solid #777;padding-top:3mm}.summary div{display:flex;gap:5mm}.foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:18mm;font-size:7.5pt;color:#444}.foot div:last-child{text-align:right}.foot em{color:#666}</style>'+buildBarangKeluarPdf(txs);
+    if(window.Android&&typeof window.Android.savePdf==='function'){window.Android.savePdf('Laporan_Barang_Keluar_A4',body);return}
+    const w=window.open('','_blank');if(!w){alert('Browser memblokir jendela cetak.');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:10mm}</style></head><body>'+body+'</body></html>');w.document.close();setTimeout(()=>w.print(),250);
+  }
+  function patchBarangKeluar(){
+    const ids=['bkPrintBtn','bkPdfBtn'];
+    ids.forEach(id=>{const old=$(id);if(!old||old.dataset.nfA4Patch)return;const b=old.cloneNode(true);b.dataset.nfA4Patch='1';b.className=(old.className||'')+' nf-a4-report-btn';b.innerHTML=id==='bkPdfBtn'?'📕 PDF A4':'🖨 PDF A4';old.replaceWith(b);b.addEventListener('click',e=>{e.preventDefault();saveBarangKeluarPdf()})});
+  }
+  function boot(){decorate();patchBarangKeluar();setTimeout(refresh,300);setTimeout(decorate,500);setTimeout(patchBarangKeluar,700);setTimeout(patchBarangKeluar,1400)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
