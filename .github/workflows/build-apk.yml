@@ -39,6 +39,22 @@ jobs:
       - name: Prepare APK HTML
         run: python3 tools/prepare_apk_v3.py
 
+      - name: Inject robust CSV importer
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html')
+          s=p.read_text(encoding='utf-8')
+          js=Path('tools/csv_import_v2.js').read_text(encoding='utf-8')
+          tag='<script id="csvImportV2">\n'+js+'\n</script>\n'
+          pos=s.lower().rfind('</body></html>')
+          if pos<0:
+              raise SystemExit('index.html closing tag not found')
+          s=s[:pos]+tag+s[pos:]
+          p.write_text(s,encoding='utf-8')
+          print('Injected CSV Import V2')
+          PY
+
       - name: Validate generated database seed
         run: |
           python3 - <<'PY'
