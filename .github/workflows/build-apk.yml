@@ -55,6 +55,22 @@ jobs:
           print('Injected CSV Import V2')
           PY
 
+      - name: Inject GitHub cloud CSV sync
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html')
+          s=p.read_text(encoding='utf-8')
+          js=Path('tools/github_cloud_sync.js').read_text(encoding='utf-8')
+          tag='<script id="githubCloudSync">\n'+js+'\n</script>\n'
+          pos=s.lower().rfind('</body></html>')
+          if pos<0:
+              raise SystemExit('index.html closing tag not found')
+          s=s[:pos]+tag+s[pos:]
+          p.write_text(s,encoding='utf-8')
+          print('Injected GitHub Cloud Sync')
+          PY
+
       - name: Validate generated database seed
         run: |
           python3 - <<'PY'
