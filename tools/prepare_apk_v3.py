@@ -24,7 +24,7 @@ if 'window.Android.saveReport(filename, xls' not in s:
     marker='    const blob=new Blob([xls],{type:"application/vnd.ms-excel;charset=utf-8"});'
     if marker in s: s=s.replace(marker,nd+marker,1)
 
-for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1','databaseManagerV1','reportUiV2','naufalPageArchitectureV4','naufalPageArchitectureV5']:
+for script_id in ['barangKeluarV3','barangKeluarV2','daftarItemCrudV1','databaseManagerV1','reportUiV2','naufalPageArchitectureV4','naufalPageArchitectureV5','transactionPrintV1']:
     s=re.sub(r'<script id="'+script_id+r'">.*?</script>\s*','',s,flags=re.S)
 s=re.sub(r'<script id="naufalPageArchitectureV3">.*?</script>\s*','',s,flags=re.S)
 s=re.sub(r'<script id="naufalLiquidLayoutFix">.*?</script>\s*','',s,flags=re.S)
@@ -34,6 +34,7 @@ modules=[
     ('databaseManagerV1',Path('tools/database_manager_v1.js')),
     ('reportUiV2',Path('tools/report_ui_v2.js')),
     ('naufalPageArchitectureV5',Path('tools/page_architecture_v5.js')),
+    ('transactionPrintV1',Path('tools/transaction_print_v1.js')),
 ]
 pos=s.lower().rfind('</body></html>')
 if pos<0: raise SystemExit('index.html: document closing tag not found')
@@ -48,4 +49,4 @@ head_pos=s.lower().find('</head>')
 if head_pos<0: raise SystemExit('index.html: </head> not found')
 s=s[:head_pos]+style_tag+s[head_pos:]
 p.write_text(s,encoding='utf-8')
-print('Prepared APK HTML with database manager, consolidated UI V3 and mobile layout normalization')
+print('Prepared APK HTML with database manager, consolidated UI V3, transaction printing, and mobile layout normalization')
