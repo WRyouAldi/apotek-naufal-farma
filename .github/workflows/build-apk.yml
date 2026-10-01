@@ -71,6 +71,9 @@ jobs:
           print('Injected GitHub Cloud Sync')
           PY
 
+      - name: Apply robust A4 PDF renderer
+        run: python3 tools/patch_pdf_a4.py
+
       - name: Validate generated database seed
         run: |
           python3 - <<'PY'
