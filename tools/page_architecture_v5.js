@@ -35,7 +35,7 @@
   if(legacyStatus) home.appendChild(legacyStatus);
 
   const more=document.createElement('div'); more.className='nf-more-link';
-  more.innerHTML='<span>Kelola database produk & sinkronisasi</span><div class="nf-home-tools"><button type="button" data-open-items>▤ Daftar Item</button><button type="button" data-open-sync>↻ Sync Data</button></div>';
+  more.innerHTML='<div class="nf-home-tools-title"><b>DATABASE & SINKRONISASI</b><small>Kelola item lokal dan perbarui data perangkat</small></div><div class="nf-home-tools"><button type="button" data-open-items><span>▤</span><b>Daftar Item</b><small>Tambah, edit, import CSV</small></button><button type="button" data-open-sync><span>↻</span><b>Sync Data</b><small>Perbarui dari cloud</small></button></div>';
   home.insertBefore(more,quick);
 
   const price=make('nfPrice','Cek Harga','Cari nama, kode, barcode, dan harga jual.');
@@ -68,8 +68,8 @@
       '<button type="button" data-page="home"><span>⌂</span><b>Beranda</b></button>'+
       '<button type="button" data-page="price"><span>⌕</span><b>Harga</b></button>'+
       '<button type="button" data-page="transaction"><span>▣</span><b>Transaksi</b></button>'+
-      '<button type="button" data-page="items"><span>▤</span><b>Item</b></button>'+
-      '<button type="button" data-page="sync"><span>↻</span><b>Sync</b></button>'+
+      '<button type="button" data-page="items"><span>▤</span><b>Daftar Item</b></button>'+
+      '<button type="button" data-page="sync"><span>↻</span><b>Sync Data</b></button>'+
       '<button type="button" data-page="report"><span>▥</span><b>Laporan</b></button>';
     nodes.bottom.classList.add('nf-glass-nav');
     nodes.bottom.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.nfGo(b.dataset.page)));
