@@ -264,6 +264,9 @@ for all using (
 with check (
   public.can_access_branch(branch_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','inventory'))
+  and exists (select 1 from public.products p
+    where p.id = product_id
+      and p.organization_id = (select (public.current_profile()).organization_id))
 );
 
 create policy "branch users read movements" on public.stock_movements
@@ -274,6 +277,8 @@ for insert with check (
   and organization_id = (select (public.current_profile()).organization_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','inventory','cashier'))
   and (actor_user_id is null or actor_user_id = auth.uid())
+  and exists (select 1 from public.products p
+    where p.id = product_id and p.organization_id = organization_id)
 );
 
 create policy "branch users read sales" on public.sales
@@ -298,25 +303,42 @@ with check (
 create policy "read sale items through sale scope" on public.sale_items
 for select using (exists (select 1 from public.sales s where s.id = sale_id and public.can_access_branch(s.branch_id)));
 create policy "create sale items through sale scope" on public.sale_items
-for insert with check (exists (select 1 from public.sales s where s.id = sale_id and public.can_access_branch(s.branch_id)
-  and ((select (public.current_profile()).role) in ('owner','branch_admin','cashier'))));
+for insert with check (
+  exists (select 1 from public.sales s
+    where s.id = sale_id
+      and public.can_access_branch(s.branch_id)
+      and s.organization_id = (select (public.current_profile()).organization_id)
+      and ((select (public.current_profile()).role) in ('owner','branch_admin','cashier')))
+  and exists (select 1 from public.products p
+    where p.id = product_id
+      and p.organization_id = (select (public.current_profile()).organization_id))
+);
 
 create policy "branch users read transfers" on public.stock_transfers
 for select using (public.can_access_branch(source_branch_id) or public.can_access_branch(destination_branch_id));
 create policy "staff request transfers" on public.stock_transfers
 for insert with check (
-  public.can_access_branch(source_branch_id)
-  and public.can_access_branch(destination_branch_id)
+  (public.can_access_branch(source_branch_id) or public.can_access_branch(destination_branch_id))
   and organization_id = (select (public.current_profile()).organization_id)
+  and exists (select 1 from public.branches src
+    join public.branches dst on dst.organization_id = src.organization_id
+    where src.id = source_branch_id and dst.id = destination_branch_id
+      and src.organization_id = organization_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','inventory'))
 );
 create policy "authorized staff progress transfers" on public.stock_transfers
 for update using (
   (public.can_access_branch(source_branch_id) or public.can_access_branch(destination_branch_id))
+  and organization_id = (select (public.current_profile()).organization_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','inventory'))
 )
 with check (
   (public.can_access_branch(source_branch_id) or public.can_access_branch(destination_branch_id))
+  and organization_id = (select (public.current_profile()).organization_id)
+  and exists (select 1 from public.branches src
+    join public.branches dst on dst.organization_id = src.organization_id
+    where src.id = source_branch_id and dst.id = destination_branch_id
+      and src.organization_id = organization_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','inventory'))
 );
 create policy "read transfer items by transfer scope" on public.stock_transfer_items
