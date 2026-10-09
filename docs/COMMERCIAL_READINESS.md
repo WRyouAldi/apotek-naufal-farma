@@ -30,6 +30,18 @@ Status: architecture/readiness plan. This document does not claim that multi-use
 6. Keep the existing safety rule: empty, malformed, or unexpectedly small cloud imports must never erase local data. Add checksums/schema versions, row-count thresholds, and a preview/confirmation for destructive imports.
 7. Define offline behavior and reconciliation. Local-only data must be marked as pending sync; never imply it has been backed up until server confirmation.
 
+### P0 — Multi-device and multi-branch operation
+1. Model the business as an organization with one or more branches. Every user, device, stock location, sale, stock movement, purchase/receiving record, return, and report must have an explicit organization/branch scope where applicable.
+2. Separate shared master data (for example, product identity, barcode, generic/name and units) from branch-specific data (stock on hand, purchase cost where it differs, selling-price overrides, stock minimums, and branch transactions). Do not assume that a single global stock quantity is correct across branches.
+3. Define access scopes: owner/super-admin across the organization; branch admin limited to assigned branches; cashier/user limited to permitted actions and assigned branch. Server-side policies must enforce this even if a client modifies requests.
+4. Register devices and associate each device with a branch. Provide device revocation, session revocation, and an audit trail for device/branch changes. A device must not switch branches silently while an active cashier session is open.
+5. Support offline checkout only with durable local transaction IDs and an outbox/queue. On reconnect, sync pending sales and stock movements idempotently; never discard queued transactions because a newer snapshot arrived.
+6. Define cross-device conflict rules. Treat sales and stock movements as append-only ledger events; derive stock from accepted movements rather than resolving conflicts by “last write wins” on a single stock number.
+7. Add explicit inter-branch transfer workflows: request/dispatch/receive, source and destination branch, quantities, status, actor, timestamps, and audit events. Do not increase destination stock merely because a transfer was requested or dispatched.
+8. Reports must be filterable by branch and organization-wide totals. Verify that a branch user cannot query another branch's sales, stock, purchase cost, or customer data by changing a client-side branch ID.
+9. Define operational behavior when two devices sell the last units while offline. Show provisional/offline status and reconcile shortages transparently; no architecture can guarantee globally accurate real-time stock while devices are disconnected.
+10. Use server-authoritative IDs, timestamps/versioning, schema migrations, and idempotency keys for sync. Test duplicate retries, out-of-order events, clock skew, revoked users/devices, and branch reassignment.
+
 ### P0 — Database integrity and recovery
 - Use database migrations with versioned schemas and rollback/recovery plans.
 - Add atomic import transactions, validation, duplicate detection, and referential-integrity checks for sales and sale items.
@@ -63,7 +75,8 @@ Status: architecture/readiness plan. This document does not claim that multi-use
 ## Recommended target architecture
 - Android/WebView client: Crystal Liquid UI, local database for resilient offline operations, no embedded privileged credentials.
 - Authentication: managed identity or backend-issued sessions; account and role checks on every privileged operation.
-- Backend: authenticated API/database with server-side authorization, store/tenant isolation, audit events, and versioned sync.
+- Backend: authenticated API/database with organization/branch isolation, server-side authorization, audit events, idempotent event sync, and versioned migrations.
+- Multi-branch model: shared product catalog plus branch-scoped inventory/transactions; organization-wide owner access and branch-limited staff access. Cross-branch stock movement uses a transfer ledger, not direct quantity overwrites.
 - Sync: authenticated incremental sync with conflict resolution and explicit success/failure states. GitHub can remain a development/build artifact source, not the production system of record for sensitive business data.
 - Admin console: account lifecycle, roles, store settings, backup/restore, audit review, and integration settings.
 
@@ -80,6 +93,8 @@ The theme change is source-committed, but visual regression still needs APK buil
 - [ ] Login/logout/lock/timeout and password/PIN reset tested.
 - [ ] Unauthorized users cannot call privileged native operations directly.
 - [ ] Multi-user sessions and role changes are enforced server-side for cloud deployment.
+- [ ] Organization/branch isolation is verified with negative authorization tests.
+- [ ] Multi-device offline sales, retry/idempotency, conflict handling, and branch transfers are tested.
 - [ ] No production secrets in APK, source bundle, or public repository.
 - [ ] Sync works with offline/retry/conflict scenarios without data loss.
 - [ ] Sales are atomic, auditable, and protected from duplicate submission.
