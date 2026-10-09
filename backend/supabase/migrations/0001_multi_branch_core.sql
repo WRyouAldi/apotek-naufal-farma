@@ -289,6 +289,7 @@ for insert with check (
   and organization_id = (select (public.current_profile()).organization_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','cashier'))
   and (actor_user_id is null or actor_user_id = auth.uid())
+  and (status <> 'voided' or (select (public.current_profile()).role) in ('owner','branch_admin'))
 );
 create policy "owner or branch admin void sales" on public.sales
 for update using (
@@ -323,7 +324,7 @@ for insert with check (
   and exists (select 1 from public.branches src
     join public.branches dst on dst.organization_id = src.organization_id
     where src.id = source_branch_id and dst.id = destination_branch_id
-      and src.organization_id = organization_id)
+      and src.organization_id = stock_transfers.organization_id)
   and ((select (public.current_profile()).role) in ('owner','branch_admin','inventory'))
 );
 create policy "authorized staff progress transfers" on public.stock_transfers
@@ -358,6 +359,21 @@ with check (public.is_org_owner(organization_id));
 create policy "branch admins see branch devices" on public.registered_devices
 for select using (public.can_access_branch(branch_id) and (select (public.current_profile()).role) = 'branch_admin');
 
+create or replace function public.owner_sale_item_costs(target_sale uuid)
+returns table (sale_item_id uuid, sale_id uuid, purchase_price_snapshot numeric)
+language sql stable security definer
+set search_path = public
+as $
+  select si.id, si.sale_id, si.purchase_price_snapshot
+  from public.sale_items si
+  join public.sales s on s.id = si.sale_id
+  join public.profiles p on p.user_id = auth.uid()
+  where s.id = target_sale
+    and p.is_active = true
+    and p.role = 'owner'
+    and p.organization_id = s.organization_id
+$;
+
 create policy "read audit within scope" on public.audit_events
 for select using (
   public.is_org_owner(organization_id)
@@ -375,9 +391,17 @@ for insert with check (
 -- are still filtered by RLS; privileged service-role keys must remain server-side only.
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on public.branches, public.profiles, public.products,
-  public.branch_inventory, public.stock_movements, public.sales, public.sale_items,
+  public.branch_inventory, public.stock_movements, public.sales,
   public.stock_transfers, public.stock_transfer_items, public.registered_devices,
   public.audit_events to authenticated;
+-- Do not grant table-level SELECT/INSERT on sale_items: purchase-cost snapshots are
+-- restricted to an owner-only function; client inserts cannot set that sensitive column.
+revoke all on public.sale_items from authenticated;
+grant select (id, sale_id, product_id, product_name_snapshot, quantity, unit_price, line_total)
+  on public.sale_items to authenticated;
+grant insert (sale_id, product_id, product_name_snapshot, quantity, unit_price, line_total)
+  on public.sale_items to authenticated;
+grant execute on function public.owner_sale_item_costs(uuid) to authenticated;
 grant select on public.organizations to authenticated;
 grant usage, select on sequence public.audit_events_id_seq to authenticated;
 
