@@ -78,6 +78,8 @@ Status: architecture/readiness plan. This document does not claim that multi-use
 - Confirmed first deployment scope: one organization, Apotek Naufal Farma, with multiple branches and many devices.
 - Added a proposed Supabase/PostgreSQL schema at `backend/supabase/migrations/0001_multi_branch_core.sql` for branches, branch inventory, stock movement ledger, sales, transfers, registered devices, profiles, audit events, and row-level security policies.
 - Added `backend/supabase/README.md` with safe setup steps and migration warnings.
+- Added transaction-safe PostgreSQL functions for checkout, stock receipt/adjustment, and transfer request/dispatch/receive; direct client writes to key stock/sales tables are revoked in migration 0002.
+- Added an RLS-aware read-only stock summary view in migration 0003.
 - The migration has not been executed against a hosted database, and the Android app is not yet connected to it. No branch stock was guessed or copied from the existing global local stock field.
 - Backend transactional APIs/RPCs, first-owner provisioning, authentication UI, client sync integration, and cross-device tests remain to be implemented. The SQL is a foundation and must be reviewed/tested in a staging Supabase project before production.
 
