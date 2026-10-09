@@ -14,6 +14,10 @@ This folder defines the initial PostgreSQL schema for **one organization: Apotek
 - No branch names or initial stock balances are invented or seeded.
 - Do not call the system multi-branch-ready until backend authorization, transactional stock/sales APIs, and APK integration have been implemented and tested.
 
+## Security blocker in the existing APK sync
+
+The current app also fetches `cloud/xReport2.csv` from a public GitHub raw URL. That file includes stock and purchase-price data, so it is publicly readable without authentication. Do not use that mechanism for production/private inventory. Before commercial release, move operational data behind authenticated APIs/RLS and replace the public CSV sync after the Android client integration is ready. See `docs/BACKEND_SECURITY_REVIEW.md`.
+
 ## Before applying this migration
 
 1. Create a dedicated Supabase project for Apotek Naufal Farma and restrict project/dashboard access to trusted administrators.
