@@ -290,3 +290,69 @@ header{
   backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#fff!important
  }
 }
+
+
+/* =========================================================
+   CRYSTAL LIQUID WHITE — GLOBAL SURFACE NORMALIZATION
+   Applied last so legacy green theme fragments cannot bleed through.
+   ========================================================= */
+:root{
+ --nf-green:#536779!important;--nf-green-2:#8799aa!important;--nf-green-dark:#273746!important;
+ --nf-bg:#f7f9fc!important;--nf-text:#202a34!important;--nf-muted:#75808c!important;
+ --nf-shadow:0 12px 32px rgba(43,57,72,.075)!important;
+}
+html,body,.wrap,.nf-page{background:transparent!important;color:#202a34!important}
+body{background:radial-gradient(ellipse at 8% 0%,#fff 0%,#f8fafc 55%,#edf2f7 100%)!important}
+header{background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(241,245,249,.86))!important;color:#273746!important;border:1px solid rgba(255,255,255,.96)!important;border-top:0!important;box-shadow:0 12px 34px rgba(43,57,72,.08),inset 0 1px 0 #fff!important}
+header *,header .brand-text h1,header .brand-text div{color:#273746!important}
+.wrap{background:transparent!important}
+.welcome-card,.stat-card,.quick-btn,.search-card,.card,#laporanSection,.nf-crud-card,.nf-crud-item,.nf-crud-import,.nf-crud-box,.nf-page-intro,.nf-more-link{
+ background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(245,248,251,.72))!important;
+ color:#202a34!important;border-color:rgba(255,255,255,.98)!important;
+ box-shadow:0 12px 32px rgba(43,57,72,.075),inset 0 1px 0 rgba(255,255,255,.98)!important;
+ backdrop-filter:blur(24px) saturate(155%)!important;-webkit-backdrop-filter:blur(24px) saturate(155%)!important;
+}
+.welcome-card h2,.section-head h3,.nf-page-head h2,.nf-crud-title,.nf-crud-name,.nf-crud-import-title{color:#273746!important}
+.welcome-card p,.section-head span,.nf-page-head p,.nf-page-intro,.nf-crud-meta,.nf-crud-code,.nf-crud-count{color:#75808c!important}
+.stat-icon,.quick-btn span:not(.nf-auto-label),.nf-report-icon,.nf-back,.nf-crud-import-icon{
+ background:linear-gradient(145deg,rgba(232,238,244,.94),rgba(213,223,233,.66))!important;color:#536779!important;
+}
+.quick-btn.q-green,.quick-btn.q-green:hover,.quick-btn.q-blue,.quick-btn.q-indigo,.quick-btn.q-orange{
+ background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(235,241,247,.78))!important;color:#273746!important;border-color:rgba(255,255,255,.99)!important;
+ box-shadow:0 12px 30px rgba(43,57,72,.075),inset 0 1px 0 #fff!important;
+}
+.quick-btn.q-green .nf-auto-label,.quick-btn.q-green .nf-auto-label~.nf-auto-label{color:#273746!important}
+.search input,.nf-crud-field input,.nf-crud-tools select,.nf-crud-import-row select,#laporanSection input{
+ background:rgba(255,255,255,.9)!important;color:#202a34!important;border:1px solid #dfe6ed!important;box-shadow:inset 0 1px 2px rgba(43,57,72,.025)!important;
+}
+button{font-family:inherit!important}
+button:not(.nf-crud-del):not(.danger):not(.nf-del):not(.nf-print):not(.nf-crud-save):not(.nf-crud-add):not(.nf-crud-import-btn):not(#nfCloudSync):not(#scanBarcode){
+ background:rgba(255,255,255,.82)!important;color:#405467!important;border:1px solid rgba(211,220,229,.86)!important;
+ box-shadow:0 5px 16px rgba(43,57,72,.055),inset 0 1px 0 #fff!important;
+}
+#scanBarcode,.nf-crud-add,.nf-crud-import-btn,.nf-crud-save,#nfCloudSync,#laporanSection .nf-print{
+ background:linear-gradient(135deg,#536779,#7d91a4)!important;color:#fff!important;border:1px solid rgba(255,255,255,.82)!important;
+ box-shadow:0 8px 22px rgba(43,57,72,.15),inset 0 1px 0 rgba(255,255,255,.2)!important;
+}
+.nf-glass-nav{background:rgba(255,255,255,.78)!important;border:1px solid rgba(255,255,255,.99)!important;box-shadow:0 16px 42px rgba(43,57,72,.13),inset 0 1px 0 #fff!important;backdrop-filter:blur(28px) saturate(170%)!important;-webkit-backdrop-filter:blur(28px) saturate(170%)!important}
+.nf-glass-nav button{background:transparent!important;border:0!important;box-shadow:none!important;color:#75808c!important}
+.nf-glass-nav button span{color:inherit!important}
+.nf-glass-nav button.active{background:rgba(219,227,235,.76)!important;color:#273746!important}
+.nf-glass-nav button.primary{background:linear-gradient(135deg,#536779,#7d91a4)!important;color:#fff!important}
+#nfCloudCard{background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(239,244,249,.78))!important;border:1px solid rgba(255,255,255,.99)!important;border-radius:20px!important;box-shadow:0 12px 32px rgba(43,57,72,.08),inset 0 1px 0 #fff!important;backdrop-filter:blur(24px) saturate(155%)!important;-webkit-backdrop-filter:blur(24px) saturate(155%)!important}
+#nfCloudCard>div:first-child{color:#273746!important}
+#nfCloudCard #nfCloudStatus{color:#75808c!important}
+.nf-more-link{display:flex!important;flex-direction:column!important;gap:10px!important;padding:14px!important;border:1px solid rgba(255,255,255,.98)!important;border-radius:20px!important;margin-top:12px!important}
+.nf-home-tools{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important}
+.nf-home-tools button{min-height:45px!important;border-radius:14px!important;font-size:12px!important;font-weight:800!important}
+.nf-page-head{padding:3px 0!important}
+.nf-crud-modal{background:rgba(37,49,62,.35)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}
+.nf-crud-box{background:rgba(255,255,255,.97)!important}
+@media(max-width:430px){
+ .nf-glass-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ .nf-glass-nav button b{font-size:8px!important}
+ .nf-home-tools button{font-size:11px!important}
+}
+@media(prefers-reduced-transparency:reduce){
+ header,.welcome-card,.stat-card,.quick-btn,.search-card,.card,#laporanSection,.nf-glass-nav,#nfCloudCard{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#fff!important}
+}
