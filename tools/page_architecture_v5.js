@@ -35,7 +35,7 @@
   if(legacyStatus) home.appendChild(legacyStatus);
 
   const more=document.createElement('div'); more.className='nf-more-link';
-  more.innerHTML='<span>Kelola database produk</span><button type="button">Daftar Item →</button>';
+  more.innerHTML='<span>Kelola database produk & sinkronisasi</span><div class="nf-home-tools"><button type="button" data-open-items>▤ Daftar Item</button><button type="button" data-open-sync>↻ Sync Data</button></div>';
   home.appendChild(more);
 
   const price=make('nfPrice','Cek Harga','Cari nama, kode, barcode, dan harga jual.');
@@ -61,10 +61,10 @@
   if(nodes.bottom){
     nodes.bottom.innerHTML=
       '<button type="button" data-page="home"><span>⌂</span><b>Beranda</b></button>'+
-      '<button type="button" data-page="price"><span>⌕</span><b>Cek Harga</b></button>'+
-      '<button type="button" data-page="transaction"><span>🛒</span><b>Transaksi</b></button>'+
-      '<button type="button" data-page="out"><span>↗</span><b>Keluar</b></button>'+
-      '<button type="button" data-page="report"><span>▤</span><b>Laporan</b></button>';
+      '<button type="button" data-page="price"><span>⌕</span><b>Harga</b></button>'+
+      '<button type="button" data-page="transaction"><span>▣</span><b>Transaksi</b></button>'+
+      '<button type="button" data-page="items"><span>▤</span><b>Item</b></button>'+
+      '<button type="button" data-page="report"><span>▥</span><b>Laporan</b></button>';
     nodes.bottom.classList.add('nf-glass-nav');
     nodes.bottom.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.nfGo(b.dataset.page)));
   }
@@ -108,7 +108,19 @@
   window.focusReport=function(){window.nfGo('report')};
   window.focusOut=function(){window.nfGo('out')};
   window.focusItems=function(){window.nfGo('items')};
-  more.querySelector('button').onclick=window.focusItems;
+  window.focusSync=function(){more.querySelector('[data-open-sync]')?.click()};
+  more.querySelector('[data-open-items]').onclick=window.focusItems;
+  more.querySelector('[data-open-sync]').onclick=function(){
+    window.nfGo('items');
+    setTimeout(function(){
+      const b=document.getElementById('nfCloudSync');
+      if(b)b.click();
+      else {
+        const e=document.getElementById('nfCloudStatus');
+        if(e){e.textContent='Menu Sync Data sedang disiapkan. Coba lagi beberapa saat.';e.style.color='#75808c';}
+      }
+    },1000);
+  };
 
   // Remove legacy bottom navigation and menu hooks that could scroll instead of navigating.
   document.querySelectorAll('#bottomNavV15 button').forEach(b=>{
