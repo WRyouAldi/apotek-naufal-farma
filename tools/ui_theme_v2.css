@@ -562,3 +562,27 @@ input:focus,select:focus,textarea:focus{border-color:#b8c1cb!important;box-shado
 @media(prefers-reduced-transparency:reduce){
  header,.welcome-card,.stat-card,.quick-btn,.search-card,.card,#laporanSection,.nf-glass-nav,.nf-more-link{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#fff!important}
 }
+/* White Crystal Liquid — runtime-generated CRUD/sync elements */
+.nf-home-tools-title{display:flex!important;flex-direction:column!important;gap:3px!important}
+.nf-home-tools-title b{font-size:10px!important;letter-spacing:1px!important;color:#535d68!important}
+.nf-home-tools-title small{font-size:10px!important;color:#7a8490!important}
+.nf-home-tools button{display:grid!important;grid-template-columns:25px 1fr!important;grid-template-rows:auto auto!important;align-items:center!important;justify-content:stretch!important;text-align:left!important;column-gap:7px!important;row-gap:2px!important;padding:9px 10px!important}
+.nf-home-tools button span{grid-row:1/3!important;display:flex!important;align-items:center!important;justify-content:center!important;width:25px!important;height:25px!important;border-radius:9px!important;background:#f0f2f5!important;color:#4c5661!important;font-size:16px!important}
+.nf-home-tools button b{font-size:11px!important;color:#303943!important}
+.nf-home-tools button small{font-size:9px!important;font-weight:500!important;color:#7a8490!important}
+#nfItemsHost .nf-crud-card,#nfItemsHost .nf-crud-item,#nfItemsHost .nf-crud-import,#nfItemsHost .nf-crud-box{
+ background:rgba(255,255,255,.84)!important;border:1px solid rgba(255,255,255,.98)!important;
+ box-shadow:0 10px 26px rgba(35,44,56,.065),inset 0 1px 0 #fff!important;
+ backdrop-filter:blur(22px) saturate(145%)!important;-webkit-backdrop-filter:blur(22px) saturate(145%)!important;
+}
+#nfItemsHost .nf-crud-add,#nfItemsHost .nf-crud-import-btn,#nfItemsHost .nf-crud-save{
+ background:rgba(255,255,255,.94)!important;color:#303943!important;border:1px solid #fff!important;
+ box-shadow:0 6px 16px rgba(35,44,56,.07),inset 0 1px 0 #fff!important;
+}
+#nfItemsHost .nf-edit,#nfItemsHost .nf-del,#nfItemsHost .nf-crud-cancel{
+ background:rgba(255,255,255,.9)!important;color:#3b444e!important;border:1px solid #fff!important
+}
+#nfItemsHost .nf-crud-import-icon{background:#f0f2f5!important;color:#303943!important}
+#nfItemsHost .nf-crud-price{color:#303943!important}
+#nfSyncHost #nfCloudCard{background:rgba(255,255,255,.84)!important;border:1px solid #fff!important}
+#nfSyncHost #nfCloudSync{background:rgba(255,255,255,.94)!important;color:#303943!important;border:1px solid #fff!important}
