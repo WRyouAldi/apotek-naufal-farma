@@ -174,3 +174,119 @@ header{
   .nf-page-head p{font-size:10px!important}
 }
 
+
+
+/* =========================================================
+   CRYSTAL LIQUID — PEARL WHITE COMMERCIAL THEME
+   Preserve glass blur, translucency, depth and rounded geometry.
+   Replace green-first identity with pearl white / ice / graphite.
+   ========================================================= */
+:root{
+  --nf-green:#536779;
+  --nf-green-2:#8397a8;
+  --nf-green-dark:#273746;
+  --nf-navy:#273746;
+  --nf-bg:#f7f8fa;
+  --nf-bg-2:#edf1f5;
+  --nf-text:#202a34;
+  --nf-muted:#75808c;
+  --nf-line:#dfe5eb;
+  --nf-surface:rgba(255,255,255,.76);
+  --nf-surface-solid:#fff;
+  --nf-mint:#edf1f5;
+  --nf-cyan:#edf3f8;
+  --nf-amber:#f7f2e9;
+  --nf-danger:#f8eded;
+  --nf-shadow:0 12px 32px rgba(43,57,72,.075);
+  --nf-shadow-lg:0 18px 44px rgba(43,57,72,.10);
+}
+html,body{background:radial-gradient(ellipse at 10% 0%,#fff 0%,#f7f8fa 48%,#edf1f5 100%)!important;color:var(--nf-text)!important}
+header{
+  color:#273746!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(245,248,251,.84))!important;
+  border-bottom:1px solid rgba(255,255,255,.98)!important;
+  box-shadow:0 10px 34px rgba(43,57,72,.08),inset 0 1px 0 #fff!important;
+  backdrop-filter:blur(28px) saturate(155%)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(155%)!important;
+}
+.brand-text h1,.brand-text div{color:#273746!important}
+.brand-text div{opacity:.78!important}
+.top-notify{background:rgba(255,255,255,.72)!important;border-color:rgba(196,207,218,.7)!important;color:#536779!important;box-shadow:inset 0 1px 0 #fff!important}
+.welcome-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(246,249,252,.64) 62%,rgba(232,238,244,.62))!important;
+  border:1px solid rgba(255,255,255,.98)!important;
+  box-shadow:var(--nf-shadow-lg),inset 0 1px 0 #fff!important;
+}
+.welcome-card:before{background:rgba(199,213,226,.24)!important}
+.welcome-card:after{background:rgba(255,255,255,.7)!important}
+.welcome-card h2{color:#273746!important}
+.stat-card,.search-card,.card,#laporanSection,.nf-crud-card{
+  background:rgba(255,255,255,.68)!important;
+  border-color:rgba(255,255,255,.98)!important;
+  box-shadow:var(--nf-shadow),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+.stat-icon,.nf-report-icon,.nf-back{background:rgba(229,235,241,.78)!important;color:#536779!important}
+.stat-stock .stat-icon{background:rgba(248,237,237,.8)!important;color:#b75c62!important}
+.quick-btn{
+  color:#273746!important;
+  background:rgba(255,255,255,.68)!important;
+  border-color:rgba(255,255,255,.98)!important;
+  box-shadow:var(--nf-shadow),inset 0 1px 0 #fff!important;
+}
+.quick-btn.q-green,.quick-btn.q-green:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(231,237,243,.9))!important;
+  color:#273746!important;border-color:rgba(255,255,255,.98)!important;
+  box-shadow:var(--nf-shadow),inset 0 1px 0 #fff!important;
+}
+.quick-btn.q-green .nf-auto-label,.quick-btn.q-green .nf-auto-label~.nf-auto-label{color:#273746!important}
+.quick-btn.q-green span:not(.nf-auto-label){background:rgba(213,223,232,.56)!important;color:#536779!important}
+.quick-btn.q-blue,.quick-btn.q-indigo,.quick-btn.q-orange{
+  background:linear-gradient(135deg,rgba(255,255,255,.88),rgba(239,243,247,.74))!important;
+}
+.quick-btn.q-blue span:not(.nf-auto-label),.quick-btn.q-indigo span:not(.nf-auto-label),.quick-btn.q-orange span:not(.nf-auto-label){
+  background:rgba(216,225,234,.55)!important;color:#536779!important;
+}
+.search input,#laporanSection .nf-report-controls input,.nf-crud-field input{
+  background:rgba(255,255,255,.82)!important;border-color:#dfe5eb!important;color:#202a34!important;
+}
+#scanBarcode,.nf-crud-add,.nf-crud-import-btn,.nf-crud-save,.nf-cloud-card button,#nfCloudSync{
+  background:linear-gradient(135deg,#536779,#71869a)!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+  box-shadow:0 7px 18px rgba(43,57,72,.12),inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+.nf-crud-import{background:rgba(255,255,255,.58)!important;border-color:#e0e6ec!important}
+.nf-crud-import-icon{background:#536779!important}
+.nf-crud-name,.nf-crud-title{color:#202a34!important}
+.nf-crud-price,#reportPreview .mobile-total b,#laporanSection .nf-kpi-sales b{color:#3d5265!important}
+.nf-crud-item,.nf-crud-box,.nf-crud-modal .nf-crud-box{
+  background:rgba(255,255,255,.88)!important;border-color:#e2e7ed!important;
+}
+.nf-glass-nav{
+  background:rgba(255,255,255,.72)!important;
+  border-color:rgba(255,255,255,.98)!important;
+  box-shadow:0 16px 42px rgba(43,57,72,.12),inset 0 1px 0 #fff!important;
+}
+.nf-glass-nav button.active{background:rgba(219,227,235,.68)!important;color:#273746!important}
+.nf-glass-nav button.primary{background:linear-gradient(135deg,#536779,#71869a)!important;color:#fff!important}
+#laporanSection:before{background:linear-gradient(135deg,rgba(190,204,218,.2),rgba(255,255,255,.04))!important}
+#laporanSection .nf-kpi-sales{background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(231,237,243,.72))!important;border-color:#dce4eb!important}
+#laporanSection .nf-excel{background:#edf2f6!important;color:#536779!important}
+#laporanSection .nf-excel span{background:#dfe7ee!important}
+#laporanSection .nf-print{background:linear-gradient(135deg,#536779,#71869a)!important;color:#fff!important}
+#laporanSection .nf-report-controls{background:rgba(246,248,250,.76)!important;border-color:#e0e6ec!important}
+#laporanSection .nf-report-quick button{background:#e9eef3!important;color:#405467!important}
+.nf-page-head h2{color:#273746!important}
+.nf-page-head p,.nf-crud-meta,.nf-crud-code{color:#75808c!important}
+.nf-crud-actions .nf-edit{background:#edf2f6!important;color:#405467!important}
+.nf-crud-actions .nf-del{background:#f8eded!important;color:#b75c62!important}
+#nfCloudCard{
+  background:rgba(255,255,255,.72)!important;border-color:rgba(255,255,255,.98)!important;
+  box-shadow:var(--nf-shadow),inset 0 1px 0 #fff!important;backdrop-filter:blur(22px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
+}
+#nfCloudCard>div:first-child{color:#273746!important}
+@media(prefers-reduced-transparency:reduce){
+ header,.welcome-card,.stat-card,.search-card,.quick-btn,.card,#laporanSection,.nf-glass-nav,#nfCloudCard{
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#fff!important
+ }
+}
