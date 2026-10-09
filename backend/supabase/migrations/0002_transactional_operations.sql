@@ -51,6 +51,10 @@ begin
   if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'At least one sale item is required';
   end if;
+  if exists (
+    select 1 from jsonb_array_elements(p_items) x
+    group by x->>'product_id' having count(*) > 1
+  ) then raise exception 'Duplicate product lines are not allowed; combine quantities first'; end if;
   if p_discount is null or p_discount < 0 then raise exception 'Invalid discount'; end if;
 
   select id into v_existing from public.sales
@@ -159,6 +163,16 @@ begin
   if p_movement_type not in ('opening','receive','return','adjustment','expired','damaged') then
     raise exception 'Unsupported stock movement type';
   end if;
+  if p_movement_type in ('opening','receive','return') and p_quantity_delta <= 0 then
+    raise exception 'Opening, receive and return movements must add stock';
+  end if;
+  if p_movement_type in ('expired','damaged') and p_quantity_delta >= 0 then
+    raise exception 'Expired and damaged movements must remove stock';
+  end if;
+  if p_purchase_price is not null and p_purchase_price < 0
+     or p_selling_price is not null and p_selling_price < 0 then
+    raise exception 'Prices cannot be negative';
+  end if;
   if p_quantity_delta is null or p_quantity_delta = 0 or coalesce(trim(p_idempotency_key),'') = '' then
     raise exception 'Non-zero quantity and idempotency key are required';
   end if;
@@ -244,6 +258,10 @@ begin
   end if;
   if coalesce(trim(p_transfer_no),'') = '' or jsonb_typeof(p_items) <> 'array'
      or jsonb_array_length(p_items) = 0 then raise exception 'Transfer number and items are required'; end if;
+  if exists (
+    select 1 from jsonb_array_elements(p_items) x
+    group by x->>'product_id' having count(*) > 1
+  ) then raise exception 'Duplicate transfer product lines are not allowed'; end if;
 
   insert into public.stock_transfers (
     organization_id, source_branch_id, destination_branch_id, transfer_no, requested_by
@@ -337,9 +355,14 @@ begin
   for v_item in select product_id, quantity from public.stock_transfer_items
     where transfer_id = p_transfer_id order by product_id
   loop
-    insert into public.branch_inventory(branch_id, product_id, quantity)
-      values (v_transfer.destination_branch_id, v_item.product_id, 0)
-      on conflict (branch_id, product_id) do nothing;
+    insert into public.branch_inventory(
+      branch_id, product_id, quantity, minimum_quantity, purchase_price, selling_price
+    )
+    select v_transfer.destination_branch_id, src.product_id, 0,
+           src.minimum_quantity, src.purchase_price, src.selling_price
+    from public.branch_inventory src
+    where src.branch_id = v_transfer.source_branch_id and src.product_id = v_item.product_id
+    on conflict (branch_id, product_id) do nothing;
     update public.branch_inventory set quantity = quantity + v_item.quantity, updated_at = now()
       where branch_id = v_transfer.destination_branch_id and product_id = v_item.product_id;
     insert into public.stock_movements (
@@ -360,6 +383,9 @@ $$;
 -- Clients must use the transaction-safe functions rather than bypassing the stock ledger.
 revoke insert, update, delete on public.sales from authenticated;
 revoke insert, update, delete on public.sale_items from authenticated;
+revoke insert (sale_id, product_id, product_name_snapshot, quantity, unit_price, line_total)
+  on public.sale_items from authenticated;
+revoke insert, update, delete on public.audit_events from authenticated;
 revoke insert, update, delete on public.stock_movements from authenticated;
 revoke insert, update, delete on public.branch_inventory from authenticated;
 revoke insert, update, delete on public.stock_transfers from authenticated;
