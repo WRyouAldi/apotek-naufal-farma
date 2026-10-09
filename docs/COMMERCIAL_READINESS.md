@@ -74,6 +74,13 @@ Status: architecture/readiness plan. This document does not claim that multi-use
 - Test on actual target devices and printers, including small screens, app restarts, low storage, no network, slow network, and interrupted operations.
 - Provide a support channel and a documented backup/restore procedure for each customer/store.
 
+## Implementation progress — multi-branch foundation
+- Confirmed first deployment scope: one organization, Apotek Naufal Farma, with multiple branches and many devices.
+- Added a proposed Supabase/PostgreSQL schema at `backend/supabase/migrations/0001_multi_branch_core.sql` for branches, branch inventory, stock movement ledger, sales, transfers, registered devices, profiles, audit events, and row-level security policies.
+- Added `backend/supabase/README.md` with safe setup steps and migration warnings.
+- The migration has not been executed against a hosted database, and the Android app is not yet connected to it. No branch stock was guessed or copied from the existing global local stock field.
+- Backend transactional APIs/RPCs, first-owner provisioning, authentication UI, client sync integration, and cross-device tests remain to be implemented. The SQL is a foundation and must be reviewed/tested in a staging Supabase project before production.
+
 ## Recommended target architecture
 - Android/WebView client: Crystal Liquid UI, local database for resilient offline operations, no embedded privileged credentials.
 - Authentication: managed identity or backend-issued sessions; account and role checks on every privileged operation.
@@ -106,4 +113,4 @@ The theme change is source-committed, but visual regression still needs APK buil
 - [ ] Crystal Liquid Pearl White theme reviewed on-device in portrait mode and at accessibility text sizes.
 
 ## Important status distinction
-The white-theme CSS change is implemented in source. The multi-user login, server-side authorization, commercial backend, audit trail, and production release setup are requirements identified by this review, not completed features. They should be implemented and tested as separate steps so that existing product and transaction data are not put at risk.
+The white-theme CSS change is implemented in source. The multi-user login UI, deployed/connected server-side authorization, production backend APIs, audit workflow, and production release setup are not yet complete. A proposed backend SQL foundation is now committed but has not been deployed or connected to the APK. They should be implemented and tested as separate steps so that existing product and transaction data are not put at risk.
