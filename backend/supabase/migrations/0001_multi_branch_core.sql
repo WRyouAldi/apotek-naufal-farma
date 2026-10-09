@@ -402,6 +402,13 @@ grant select (id, sale_id, product_id, product_name_snapshot, quantity, unit_pri
   on public.sale_items to authenticated;
 grant insert (sale_id, product_id, product_name_snapshot, quantity, unit_price, line_total)
   on public.sale_items to authenticated;
+revoke all on function public.current_profile() from public, anon;
+revoke all on function public.can_access_branch(uuid) from public, anon;
+revoke all on function public.is_org_owner(uuid) from public, anon;
+revoke all on function public.owner_sale_item_costs(uuid) from public, anon;
+grant execute on function public.current_profile() to authenticated;
+grant execute on function public.can_access_branch(uuid) to authenticated;
+grant execute on function public.is_org_owner(uuid) to authenticated;
 grant execute on function public.owner_sale_item_costs(uuid) to authenticated;
 grant select on public.organizations to authenticated;
 grant usage, select on sequence public.audit_events_id_seq to authenticated;
