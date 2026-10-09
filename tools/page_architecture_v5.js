@@ -55,6 +55,11 @@
 
   const items=make('nfItems','Daftar Item','Kelola database produk secara offline.');
   const host=document.createElement('div'); host.id='nfItemsHost'; host.className='nf-crud-host'; items.appendChild(host);
+  const sync=make('nfSync','Sync Data','Sinkronkan database item dari sumber cloud.');
+  const syncIntro=document.createElement('div'); syncIntro.className='nf-page-intro';
+  syncIntro.textContent='Gunakan tombol sinkronisasi di bawah untuk memperbarui database item pada perangkat ini.';
+  sync.appendChild(syncIntro);
+  const syncHost=document.createElement('div'); syncHost.id='nfSyncHost'; syncHost.className='nf-sync-host'; sync.appendChild(syncHost);
   setTimeout(()=>window.nfCrudInit?.(),0);
 
   // Rebuild the existing navigation instead of creating a second navigation bar.
@@ -64,13 +69,14 @@
       '<button type="button" data-page="price"><span>⌕</span><b>Harga</b></button>'+
       '<button type="button" data-page="transaction"><span>▣</span><b>Transaksi</b></button>'+
       '<button type="button" data-page="items"><span>▤</span><b>Item</b></button>'+
+      '<button type="button" data-page="sync"><span>↻</span><b>Sync</b></button>'+
       '<button type="button" data-page="report"><span>▥</span><b>Laporan</b></button>';
     nodes.bottom.classList.add('nf-glass-nav');
     nodes.bottom.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.nfGo(b.dataset.page)));
   }
 
   wrap.innerHTML='';
-  wrap.append(home,price,tx,out,report,items);
+  wrap.append(home,price,tx,out,report,items,sync);
 
   // Keep dynamically created Barang Keluar inside its own page.
   const relocate=()=>{
@@ -83,7 +89,7 @@
   setTimeout(relocate,100);
   setTimeout(relocate,500);
 
-  const map={home:'nfHome',price:'nfPrice',transaction:'nfTransaction',out:'nfOut',report:'nfReport',items:'nfItems'};
+  const map={home:'nfHome',price:'nfPrice',transaction:'nfTransaction',out:'nfOut',report:'nfReport',items:'nfItems',sync:'nfSync'};
   window.nfGo=function(page){
     if(!map[page])page='home';
     Object.entries(map).forEach(([key,id])=>{
@@ -94,6 +100,7 @@
     window.scrollTo({top:0,behavior:'smooth'});
     if(page==='price')setTimeout(()=>document.getElementById('q')?.focus(),120);
     if(page==='items')window.nfCrudRefresh?.();
+    if(page==='sync')window.nfCloudSyncInit?.();
     if(page==='report')window.nfReportRefresh?.();
   };
 
@@ -108,19 +115,9 @@
   window.focusReport=function(){window.nfGo('report')};
   window.focusOut=function(){window.nfGo('out')};
   window.focusItems=function(){window.nfGo('items')};
-  window.focusSync=function(){more.querySelector('[data-open-sync]')?.click()};
+  window.focusSync=function(){window.nfGo('sync')};
   more.querySelector('[data-open-items]').onclick=window.focusItems;
-  more.querySelector('[data-open-sync]').onclick=function(){
-    window.nfGo('items');
-    setTimeout(function(){
-      const b=document.getElementById('nfCloudSync');
-      if(b)b.click();
-      else {
-        const e=document.getElementById('nfCloudStatus');
-        if(e){e.textContent='Menu Sync Data sedang disiapkan. Coba lagi beberapa saat.';e.style.color='#75808c';}
-      }
-    },1000);
-  };
+  more.querySelector('[data-open-sync]').onclick=function(){window.nfGo('sync')};
 
   // Remove legacy bottom navigation and menu hooks that could scroll instead of navigating.
   document.querySelectorAll('#bottomNavV15 button').forEach(b=>{
