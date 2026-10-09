@@ -35,6 +35,7 @@ modules=[
     ('reportUiV2',Path('tools/report_ui_v2.js')),
     ('naufalPageArchitectureV5',Path('tools/page_architecture_v5.js')),
     ('transactionPrintV1',Path('tools/transaction_print_v1.js')),
+    ('githubCloudSyncV1',Path('tools/github_cloud_sync.js')),
 ]
 pos=s.lower().rfind('</body></html>')
 if pos<0: raise SystemExit('index.html: document closing tag not found')
