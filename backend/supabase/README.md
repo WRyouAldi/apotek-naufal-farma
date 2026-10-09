@@ -4,7 +4,8 @@ This folder defines the initial PostgreSQL schema for **one organization: Apotek
 
 ## Important status
 
-- `migrations/0001_multi_branch_core.sql` is a proposed first migration, committed to source control.
+- `migrations/0001_multi_branch_core.sql` defines the proposed core schema and row-level security (RLS).
+- `migrations/0002_transactional_operations.sql` adds server-side atomic checkout, stock receipt/adjustment, and transfer request/dispatch/receive functions. Direct client writes to transaction and inventory-ledger tables are revoked so clients must use these functions.
 - It has **not** been applied to a hosted database and has not been executed against a live PostgreSQL instance in this repository workflow.
 - The Android app is **not yet connected** to Supabase. Existing app data remains in the current local SQLite database.
 - No branch names or initial stock balances are invented or seeded.
@@ -17,7 +18,7 @@ This folder defines the initial PostgreSQL schema for **one organization: Apotek
 3. Create the actual branch records with unique codes and confirm the initial Admin Pusat identity.
 4. Create the first Supabase Auth user through the trusted dashboard or a private server-side admin process. Add its row to `public.profiles` with the seeded organization UUID, `role='owner'`, and `branch_id=NULL`. Never add a default password or service-role key to the repository/APK.
 5. Create branch users only after branch assignments and permissions are approved.
-6. Add and test server-side transactional RPC/API operations for checkout, stock receipt/adjustment, transfer dispatch/receive, voids, and idempotent offline sync. The current schema alone does not safely implement those business operations.
+6. Review both SQL migrations in a disposable staging project and run transactional RPC tests. Migration 0002 includes checkout, stock receipt/adjustment, and transfer request/dispatch/receive. Sale voids, returns/refunds, customer handling, full offline outbox replay, and end-to-end client sync still need implementation and tests.
 7. Test RLS using separate owner, branch-admin, cashier, and inventory accounts. Verify a branch user cannot read or change another branch by changing a branch ID in a request.
 8. Configure backups, restore tests, monitoring, and incident response before production use.
 
@@ -40,4 +41,4 @@ Before importing current data:
 - `cashier`: sales-oriented access; no direct purchase-cost snapshot access and no stock adjustment/transfer administration.
 - `inventory`: inventory and transfer workflows in the permitted branch scope.
 
-The migration is a foundation, not a complete POS API. Direct client writes must be replaced or constrained by server-side transactional functions before real sales and stock movements are synchronized. The app must never contain a Supabase service-role key.
+These migrations are a foundation, not a production-ready complete POS. The Android app is not integrated with the RPCs yet. Sale voids/refunds, return accounting, stock reconciliation, full offline outbox replay, and end-to-end sync still need implementation and tests. Do not use live transactions until staging security and concurrency tests pass. The app must never contain a Supabase service-role key.
