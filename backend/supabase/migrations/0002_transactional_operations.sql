@@ -52,8 +52,8 @@ begin
     raise exception 'At least one sale item is required';
   end if;
   if exists (
-    select 1 from jsonb_array_elements(p_items) x
-    group by x->>'product_id' having count(*) > 1
+    select 1 from jsonb_array_elements(p_items) as elem(item)
+    group by item->>'product_id' having count(*) > 1
   ) then raise exception 'Duplicate product lines are not allowed; combine quantities first'; end if;
   if p_discount is null or p_discount < 0 then raise exception 'Invalid discount'; end if;
 
@@ -390,6 +390,11 @@ revoke insert, update, delete on public.stock_movements from authenticated;
 revoke insert, update, delete on public.branch_inventory from authenticated;
 revoke insert, update, delete on public.stock_transfers from authenticated;
 revoke insert, update, delete on public.stock_transfer_items from authenticated;
+revoke all on function public.checkout_sale(uuid,text,text,jsonb,numeric) from public, anon;
+revoke all on function public.record_stock_movement(uuid,uuid,text,numeric,text,text,numeric,numeric) from public, anon;
+revoke all on function public.request_stock_transfer(text,uuid,uuid,jsonb) from public, anon;
+revoke all on function public.dispatch_stock_transfer(uuid) from public, anon;
+revoke all on function public.receive_stock_transfer(uuid) from public, anon;
 grant execute on function public.checkout_sale(uuid,text,text,jsonb,numeric) to authenticated;
 grant execute on function public.record_stock_movement(uuid,uuid,text,numeric,text,text,numeric,numeric) to authenticated;
 grant execute on function public.request_stock_transfer(text,uuid,uuid,jsonb) to authenticated;
