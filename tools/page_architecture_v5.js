@@ -36,7 +36,7 @@
 
   const more=document.createElement('div'); more.className='nf-more-link';
   more.innerHTML='<span>Kelola database produk & sinkronisasi</span><div class="nf-home-tools"><button type="button" data-open-items>▤ Daftar Item</button><button type="button" data-open-sync>↻ Sync Data</button></div>';
-  home.appendChild(more);
+  home.insertBefore(more,quick);
 
   const price=make('nfPrice','Cek Harga','Cari nama, kode, barcode, dan harga jual.');
   const priceIntro=document.createElement('div'); priceIntro.className='nf-page-intro';
