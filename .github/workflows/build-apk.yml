@@ -119,24 +119,10 @@ jobs:
           echo "APK variant: ${APK_VARIANT}"
           echo "Version: 1.4.${GITHUB_RUN_NUMBER}"
 
-      - name: Package APK and generated HTML
-        run: |
-          mkdir -p release-artifacts
-          cp "${APK_PATH}" "release-artifacts/Apotek-Naufal-Farma-V17-Build-${GITHUB_RUN_NUMBER}.apk"
-          cp app/src/main/assets/index.html "release-artifacts/Apotek-Naufal-Farma-V17-Build-${GITHUB_RUN_NUMBER}.html"
-          cat > "release-artifacts/README.txt" <<EOF
-          Apotek Naufal Farma - Build ${GITHUB_RUN_NUMBER}
-          APK variant: ${APK_VARIANT}
-          HTML: generated app page bundled into this APK after build preparation.
-          Install the APK to use the Android app. The HTML file is for inspection/backup and may rely on Android bridge APIs when opened outside the app.
-          Commit: ${GITHUB_SHA}
-          EOF
-          ls -lh release-artifacts
-
-      - name: Upload APK and HTML artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: Apotek-Naufal-Farma-V17-Build-${{ github.run_number }}
-          path: release-artifacts/*
+          path: ${{ env.APK_PATH }}
           if-no-files-found: error
           retention-days: 30
