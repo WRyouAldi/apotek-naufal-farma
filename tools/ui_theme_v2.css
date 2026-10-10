@@ -586,3 +586,63 @@ input:focus,select:focus,textarea:focus{border-color:#b8c1cb!important;box-shado
 #nfItemsHost .nf-crud-price{color:#303943!important}
 #nfSyncHost #nfCloudCard{background:rgba(255,255,255,.84)!important;border:1px solid #fff!important}
 #nfSyncHost #nfCloudSync{background:rgba(255,255,255,.94)!important;color:#303943!important;border:1px solid #fff!important}
+
+
+/* CRYSTAL LIQUID MATERIAL PASS — layered pearl glass */
+:root{
+ --cl-ink:#252d37;
+ --cl-muted:#778391;
+ --cl-edge:rgba(255,255,255,.96);
+ --cl-shadow:0 16px 38px rgba(40,53,69,.095),0 3px 9px rgba(40,53,69,.035);
+}
+html,body{
+ background:
+  radial-gradient(ellipse at 8% 0%,rgba(255,255,255,.98) 0,rgba(255,255,255,0) 34%),
+  radial-gradient(ellipse at 96% 20%,rgba(220,229,239,.42) 0,rgba(220,229,239,0) 30%),
+  linear-gradient(155deg,#fbfcfe 0%,#f1f4f8 52%,#f8f9fb 100%) fixed!important;
+ color:var(--cl-ink)!important;
+}
+header,.welcome-card,.stat-card,.quick-btn,.search-card,.card,#laporanSection,
+.nf-more-link,#nfCloudCard,.nf-crud-card,.nf-crud-item,.nf-crud-import,
+#nfItemsHost .nf-crud-card,#nfItemsHost .nf-crud-item,#nfItemsHost .nf-crud-import,
+.nf-glass-nav,.mobile-item,.nf-kpi{
+ position:relative!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.60) 48%,rgba(244,247,251,.70) 100%)!important;
+ box-shadow:var(--cl-shadow),inset 0 1px 0 rgba(255,255,255,.99),inset 0 -1px 0 rgba(216,224,233,.35)!important;
+ backdrop-filter:blur(26px) saturate(165%)!important;
+ -webkit-backdrop-filter:blur(26px) saturate(165%)!important;
+}
+.welcome-card:after,.stat-card:after,.quick-btn:after,.search-card:after,#laporanSection:after{
+ content:""!important;position:absolute!important;pointer-events:none!important;
+ inset:1px!important;border-radius:inherit!important;
+ background:linear-gradient(118deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.12) 24%,transparent 48%,rgba(255,255,255,.24) 100%)!important;
+ opacity:.8!important;
+}
+.welcome-card>* ,.stat-card>* ,.quick-btn>* ,.search-card>* ,#laporanSection>*{position:relative;z-index:1}
+.welcome-card{box-shadow:0 20px 44px rgba(40,53,69,.09),inset 0 1px 0 #fff!important}
+.stat-card,.quick-btn{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+.stat-card:active,.quick-btn:active,.nf-home-tools button:active{
+ transform:translateY(1px) scale(.985)!important;
+ box-shadow:0 8px 18px rgba(40,53,69,.07),inset 0 1px 0 #fff!important;
+}
+.nf-glass-nav{
+ background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(240,244,249,.68))!important;
+ box-shadow:0 18px 42px rgba(36,48,63,.15),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(213,222,232,.42)!important;
+}
+.nf-glass-nav button.active{
+ background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(225,232,240,.76))!important;
+ box-shadow:0 4px 14px rgba(45,57,72,.09),inset 0 1px 0 #fff!important;
+}
+input,select,textarea,.search input{
+ background:rgba(255,255,255,.76)!important;
+ border-color:rgba(214,223,233,.9)!important;
+ box-shadow:inset 0 2px 5px rgba(39,52,67,.035),0 1px 0 rgba(255,255,255,.95)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ header,.welcome-card,.stat-card,.quick-btn,.search-card,.card,#laporanSection,
+ .nf-more-link,#nfCloudCard,.nf-crud-card,.nf-crud-item,.nf-crud-import,.nf-glass-nav{
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#fff!important;
+ }
+ .welcome-card:after,.stat-card:after,.quick-btn:after,.search-card:after,#laporanSection:after{display:none!important}
+}
