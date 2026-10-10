@@ -259,16 +259,21 @@ class MainActivity : Activity() {
                 // Keep alpha at 1.0. WebView.draw() respects View alpha; alpha=0 produced blank PDFs.
                 val html = """
                     <!doctype html><html><head><meta charset='utf-8'>
-                    <meta name='viewport' content='width=595, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
                     <style>
                     *{box-sizing:border-box}
-                    html,body{margin:0;padding:0;background:#fff;width:595px;min-width:595px}
-                    body{font-family:Arial,sans-serif;color:#111;font-size:9pt;padding:24px;width:595px;overflow:hidden}
+                    html,body{margin:0;padding:0;background:#fff;width:100%;min-width:0;max-width:100%;overflow:visible}
+                    body{font-family:Arial,sans-serif;color:#111;font-size:9pt;padding:28px;width:100%;max-width:100%;overflow:visible}
                     h1{text-align:center;font-size:17pt;line-height:1.15;margin:0 0 4px}
                     h2{text-align:center;font-size:11pt;line-height:1.2;margin:0 0 10px}
                     p{margin:4px 0 10px}
                     table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed}
-                    th,td{border:1px solid #888;padding:5px 6px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
+                    th,td{border:1px solid #888;padding:5px 6px;vertical-align:top;min-width:0;overflow-wrap:anywhere;word-break:break-word}
+                    .page{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}
+                    .head{min-width:0!important;gap:8px!important}
+                    .head>div{min-width:0!important;max-width:100%!important}
+                    thead{display:table-header-group}
+                    tr{break-inside:avoid;page-break-inside:avoid}
                     th{background:#eee}
                     .r{text-align:right;white-space:nowrap}
                     .total{margin:12px 0 0 auto;width:300px;max-width:100%}
